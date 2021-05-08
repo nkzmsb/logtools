@@ -18,7 +18,7 @@ def test_dummylogs(valid_typ_log):
     print(valid_typ_log)
     
     assert valid_typ_log == ("2021-05-08 21:57:23,823___INFO___DUMMYLOG"
-                             "___FUNC___run___None___d_message___None___"
+                             "___FUNC___run___dummyError : [-1, -1, -1]___d_message___None___"
                              "{'A': 'AAA', 'int': 3, "
                              "'nest': {'A': 'nestA', "
                              "'BB': {'bnest': [1, 2, 3], 'tag': True}}}")

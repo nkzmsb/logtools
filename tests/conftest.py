@@ -22,7 +22,13 @@ def valid_typ_log(tmpdir_factory):
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     
-    dummy_extra = {"func":"FUNC", "action":"run", "exception":None, "tag":None
+    try:
+        raise ValueError("dummyError : {}".format([-1,-1,-1]))
+    except ValueError as ve:
+        exc = ve
+        
+    
+    dummy_extra = {"func":"FUNC", "action":"run", "exception":exc, "tag":None
                    , "values":{"A":"AAA"
                                , "int" : 3
                                , "nest" : {"A" : "nestA"
