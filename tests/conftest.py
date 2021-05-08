@@ -4,6 +4,9 @@ import logging
 
 import pytest
 
+from logtools.default import default
+
+FORMATTER = default()["formatter"]
 
 @pytest.fixture(scope="module")
 def valid_log(tmpdir_factory):
@@ -14,12 +17,12 @@ def valid_log(tmpdir_factory):
     
     logger = logging.getLogger("DUMMYLOG")
     logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(levelname)s___%(name)s___%(func)s___%(action)s___%(expection)s___%(message)s___%(tag)s___%(values)s")
+    formatter = logging.Formatter(FORMATTER[14:]) # asctimeは固定値を付加するため削除
     handler = logging.FileHandler(temp_file)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     
-    dummy_extra = {"func":"FUNC", "action":"run", "expection":None, "tag":None, "values":{"A":"AAA", "int" : 3}}
+    dummy_extra = {"func":"FUNC", "action":"run", "exception":None, "tag":None, "values":{"A":"AAA", "int" : 3}}
     logger.info("d_message", extra = dummy_extra)
     
     unitlog = temp_file.read()
