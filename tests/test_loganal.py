@@ -9,26 +9,26 @@ ATTRIBUTES = DEFAULT["attributes"]
 # FORMATTER = DEFAULT["formatter"]
 # SPLITTER = DEFAULT["splitter"]
 
-def test_dummylogs(valid_log):
+def test_dummylogs(valid_typ_log):
     """fixtureのダミーログが正しく作れていることを確認する
     
     引数のfixtureはconftest.pyで定義されている
     （fixtureの使い方の練習も兼ねて）
     """
-    print(valid_log)
+    print(valid_typ_log)
     
-    assert valid_log == ("2021-05-08 21:57:23,823___INFO___DUMMYLOG"
-                         "___FUNC___run___None___d_message___None___"
-                         "{'A': 'AAA', 'int': 3, "
-                         "'nest': {'A': 'nestA', "
-                         "'BB': {'bnest': [1, 2, 3], 'tag': True}}}")
+    assert valid_typ_log == ("2021-05-08 21:57:23,823___INFO___DUMMYLOG"
+                             "___FUNC___run___None___d_message___None___"
+                             "{'A': 'AAA', 'int': 3, "
+                             "'nest': {'A': 'nestA', "
+                             "'BB': {'bnest': [1, 2, 3], 'tag': True}}}")
 
 
 def test_breakdown_values():
     ...
 
 
-def test_log_to_dict(valid_log):
+def test_log_to_dict(valid_typ_log):
     expect = {"asctime":"2021-05-08 21:57:23,823"
               , "levelname" : "INFO"
               , "name" : "DUMMYLOG"
@@ -44,7 +44,7 @@ def test_log_to_dict(valid_log):
               , "nest-BB-tag" : True
               }
     
-    assert log_to_dict(valid_log) == expect
+    assert log_to_dict(valid_typ_log) == expect
     
 def test_log_to_dict_ex():
     # エラーメッセージを処理できるかどうか

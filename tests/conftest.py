@@ -9,7 +9,7 @@ from logtools.default import default
 FORMATTER = default()["formatter"]
 
 @pytest.fixture(scope="module")
-def valid_log(tmpdir_factory):
+def valid_typ_log(tmpdir_factory):
     """loganal.pyで取り扱えるタイプのログ（１つ）を作成する
     """
     temp_dir = tmpdir_factory.mktemp("temp_dir")
