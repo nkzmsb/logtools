@@ -1,7 +1,7 @@
 
 import pytest
 
-from logtools.loganal import log_to_dict
+from logtools.loganal import breakdown_values, log_to_dict
 from logtools.default import default
 
 DEFAULT = default()
@@ -25,7 +25,15 @@ def test_dummylogs(valid_typ_log):
 
 
 def test_breakdown_values():
-    ...
+    values = ("{'A': 'AAA', 'int': 3,"
+              " 'nest': {'A': 'nestA', 'BB': {'bnest': [1, 2, 3], 'tag': True}}}")
+    expect = {"A":"AAA"
+              , "int" : 3
+              , "nest-A" : "nestA"
+              , "nest-BB-bnest" : [1, 2, 3]
+              , "nest-BB-tag" : True}
+    
+    assert breakdown_values(values) == expect
 
 
 def test_log_to_dict(valid_typ_log):
@@ -45,11 +53,18 @@ def test_log_to_dict(valid_typ_log):
               }
     
     assert log_to_dict(valid_typ_log) == expect
-    
-def test_log_to_dict_ex():
-    # エラーメッセージを処理できるかどうか
+
+def test_logfile_converter():
+    # データとexpectの準備が面倒くさい
     ...
 
+
+def test_rename():
+    # 一時フォルダにlogdata.log, logdata.log2, logdata.log3, dummy.txtを準備する
+    # 処理後に、logdata_1.log, logdata_2.log, logdata_3.log, dummy.txtになっていることを確認する
+    ...
+    
+    
 
 # [ToDo]以下の項目でExceptionのテストが必要
 # - そもそも入りが違う(@log_to_dict)
