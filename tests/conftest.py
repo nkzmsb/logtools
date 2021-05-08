@@ -22,7 +22,15 @@ def valid_log(tmpdir_factory):
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     
-    dummy_extra = {"func":"FUNC", "action":"run", "exception":None, "tag":None, "values":{"A":"AAA", "int" : 3}}
+    dummy_extra = {"func":"FUNC", "action":"run", "exception":None, "tag":None
+                   , "values":{"A":"AAA"
+                               , "int" : 3
+                               , "nest" : {"A" : "nestA"
+                                           , "BB" : {"bnest" : [1,2,3]
+                                                     , "tag" : True}
+                                           }
+                               }
+                   }
     logger.info("d_message", extra = dummy_extra)
     
     unitlog = temp_file.read()
