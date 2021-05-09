@@ -18,6 +18,7 @@ def valid_typ_log():
     
     return ret
 
+@pytest.fixture(scope="module")
 def invalid_short_log():
     """フォーマットが異なり、loganal.pyで取り扱えないログ（１つ）を作成する
     """

@@ -2,6 +2,13 @@
 import ast
 import warnings
 
+from logtools.default import default
+
+ATTRIBUTES = default()["attributes"]
+FORMATTER = default()["formatter"]
+SPLITTER = default()["splitter"]
+
+
 
 def keymake(k_str, head_str = None):
     if head_str:
@@ -105,10 +112,28 @@ def breakdown_values(values):
 
 
 def log_to_dict(unitlog_str)->dict:
-    # values以外をdict化
-    # valuesをbreakdown_values()で分解
-    # valuesの内容をdictに追加
-    return {"aa":0}
+    
+    # ログを成分に分解する
+    # splitの引数に最大分割回数を設定することもできるが、
+    # フォーマット異常検知のためにそれは行わない
+    log_ls = unitlog_str.split(SPLITTER)
+    
+    # [FutureWork] 要検討
+    # フォーマット異常を検知する方法がlog_lsの長さを見るしかない
+    # これが限界な気もするが...
+    if len(log_ls) != len(ATTRIBUTES):
+        # warning
+        warnings.warn("strange format")
+        return {"values" : unitlog_str, "convert_exception" : "strange format"}
+    
+    ret_dic = {}
+    for k,v in zip(ATTRIBUTES[:-1], log_ls[:-1]):
+        ret_dic[k] = v
+    
+    val_dic = breakdown_values(log_ls[-1])
+    ret_dic.update(val_dic)
+    
+    return ret_dic
 
 def logfile_converter(filepath)->"list of dict":
     # log_to_dict()をループ
