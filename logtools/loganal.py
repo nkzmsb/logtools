@@ -111,24 +111,45 @@ def breakdown_values(values):
     return res_dic
 
 
-def log_to_dict(unitlog_str)->dict:
+def log_to_dict(unitlog_str, attributes_tpl = ATTRIBUTES, splitter_str = SPLITTER)->dict:
+    """log文字列を辞書に変換する
+
+    Parameters
+    ----------
+    unitlog_str : str
+        1つのログ
+    attributes_tpl : tpl of str, optional
+        ログの項目, by default ATTRIBUTES
+    splitter_str : str, optional
+        ログの各項目の仕切り文字, by default SPLITTER
+
+    Returns
+    -------
+    dict
+        辞書化されたログ
+    """
     
     # ログを成分に分解する
     # splitの引数に最大分割回数を設定することもできるが、
     # フォーマット異常検知のためにそれは行わない
-    log_ls = unitlog_str.split(SPLITTER)
+    log_ls = unitlog_str.split(splitter_str)
     
     # [FutureWork] 要検討
     # フォーマット異常を検知する方法がlog_lsの長さを見るしかない
     # これが限界な気もするが...
-    if len(log_ls) != len(ATTRIBUTES):
+    if len(log_ls) != len(attributes_tpl):
         # warning
         warnings.warn("strange format")
         return {"values" : unitlog_str, "convert_exception" : "strange format"}
     
     ret_dic = {}
-    for k,v in zip(ATTRIBUTES[:-1], log_ls[:-1]):
-        ret_dic[k] = v
+    for k,v in zip(attributes_tpl[:-1], log_ls[:-1]):
+        try:
+            # 可能なものは型評価
+            v_lit = ast.literal_eval(v)
+        except (SyntaxError, ValueError):
+            v_lit = v
+        ret_dic[k] = v_lit
     
     val_dic = breakdown_values(log_ls[-1])
     ret_dic.update(val_dic)

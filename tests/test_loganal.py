@@ -126,8 +126,8 @@ def test_rename():
 
 # [ToDo]以下の項目でExceptionのテストが必要
 # Warning
-# - そもそも入りが違う(@log_to_dict)
-# - 項目の数が違う(@log_to_dict)
+# - /そもそも入りが違う(@log_to_dict)
+# - /項目の数が違う(@log_to_dict)
 # - /ast.literal_evalのSyntaxError(@breakdown_values)
 # Exception
 # - ログファイルが見つからない(@renamefiles)
