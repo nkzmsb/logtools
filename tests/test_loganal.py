@@ -62,10 +62,10 @@ def test_breakdown_values_warning_SE(recwarn):
     ret = breakdown_values(values)
     
     assert len(recwarn) == 1
-    assert ret == {"values" : "SyntaxError"}
+    assert ret == {"values" : values, "values_breakdown_error" : "Error"}
     
     w = recwarn.pop()
-    assert w.category(Warning) # [ToDo] Warning -> UserWarning
+    assert w.category(UserWarning)
     assert str(w.message)==("values is not valid")
 
 
