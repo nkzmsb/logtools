@@ -63,19 +63,19 @@ def breakdown_values(values):
     UserWarning(values is not valid)
         valuesが辞書型に変換することができず、文字列としか認識できない場合
         返値の辞書には"values"キーに引数の文字列がそのまま、
-        "values_breakdown_error"キーに"Error"が入る
+        "convert_exception"キーに"values error"が入る
     
     UserWarning(values is not valid but work)
         valuesが辞書型に変換することができないが、そのほかの型として認識できる場合
         返値の辞書には"values"キーに評価された引数の値が、
-        "values_breakdown_error"キーに"Warning"が入る
+        "convert_exception"キーに"values warning"が入る
     """
     
     try:
         values_lit = ast.literal_eval(values)
     except SyntaxError:
         warnings.warn("values is not valid")
-        return {"values" : values, "values_breakdown_error" : "Error"}
+        return {"values" : values, "convert_exception" : "values error"}
     
     if type(values_lit)==dict:
         
@@ -99,7 +99,7 @@ def breakdown_values(values):
         # Only dict is valid as type of values_lit
         # but some other type also works. 
         warnings.warn("values is not valid but work")
-        res_dic = {"values" : values_lit, "values_breakdown_error" : "Warning"}
+        res_dic = {"values" : values_lit, "convert_exception" : "values warning"}
     
     return res_dic
 

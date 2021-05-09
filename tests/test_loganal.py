@@ -74,7 +74,7 @@ def test_breakdown_values_notdict(values, recwarn):
     ret = breakdown_values(str(values))
     assert len(recwarn) == 1
     assert ret == {"values" : values
-                   , "values_breakdown_error" : "Warning"}
+                   , "convert_exception" : "values warning"}
     
     w = recwarn.pop()
     assert w.category(UserWarning)
@@ -87,7 +87,7 @@ def test_breakdown_values_warning_SE(recwarn):
     ret = breakdown_values(values)
     
     assert len(recwarn) == 1
-    assert ret == {"values" : values, "values_breakdown_error" : "Error"}
+    assert ret == {"values" : values, "convert_exception" : "values error"}
     
     w = recwarn.pop()
     assert w.category(UserWarning)
