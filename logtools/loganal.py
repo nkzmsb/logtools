@@ -10,12 +10,12 @@ def keymake(k, head_str = None):
         return k
 
 
-def expand_dict(dict, head_str = None):
+def expand_dict(dic, head_str = None):
     # dictの内容を展開する
     
     expanded_dic = {}
     remain_dic = {}
-    for k,v in dict.items():
+    for k,v in dic.items():
         if type(v) == dict:
             remain_dic[keymake(k, head_str)] = v
         else:

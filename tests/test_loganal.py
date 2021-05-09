@@ -32,10 +32,18 @@ def test_keymake(head, expect):
 def test_expand_dict():
     dic = {"A" : 1, "Nest" : {"B" : "BBB", "C" : [3,4]}, "D" : (3,4,5)}
     
-    res, exist = expand_dict(dic)
+    expanded, remain = expand_dict(dic)
     
-    assert res == {"A" : 1, "Nest-B" : "BBB", "Nest-C" : [3,4], "D" : (3,4,5)}
-    assert exist == False
+    assert expanded == {"A" : 1, "D" : (3,4,5)}
+    assert remain == {"Nest" : {"B" : "BBB", "C" : [3,4]}}
+    
+def test_expand_dict_withhead():
+    dic = {"A" : 1, "Nest" : {"B" : "BBB", "C" : [3,4]}, "D" : (3,4,5)}
+    
+    expanded, remain = expand_dict(dic, "h-hh")
+    
+    assert expanded == {"h-hh-A" : 1, "h-hh-D" : (3,4,5)}
+    assert remain == {"h-hh-Nest" : {"B" : "BBB", "C" : [3,4]}}
 
 def test_breakdown_values():
     values = ("{'A': 'AAA', 'int': 3,"
