@@ -6,15 +6,18 @@ import warnings
 def breakdown_values(values):
     
     try:
-        values = ast.literal_eval(values)
+        values_lit = ast.literal_eval(values)
     except SyntaxError:
-        warnings.warn("values is not valid type")
-        return {"values" : "SyntaxError"}
+        warnings.warn("values is not valid")
+        return {"values" : values, "values_breakdown_error" : "Error"}
     
     if type(values)==dict:
         res_dic = {"AAA" : "AAA"}
     else:
-        res_dic = {"values" : values}
+        # Only dict is valid as type of values_lit
+        # but some other type also works. 
+        warnings.warn("values is not valid but work")
+        res_dic = {"values" : values_lit, "values_breakdown_error" : "Warning"}
     
     return res_dic
 

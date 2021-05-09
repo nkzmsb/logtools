@@ -41,13 +41,20 @@ def test_breakdown_values():
                             , (1,2)
                             , [1,2]
                             , [[1,2], [3,4]]
-                            , "Who am I?"
                             , True])
-def test_breakdown_values_notdict(values):
-    if type(values) != str:
-        assert breakdown_values(str(values)) == {"values" : values}
-    else:
-        assert breakdown_values(values) == {"values" : values}
+def test_breakdown_values_notdict(values, recwarn):
+    # Only dict is valid as type of values
+    # but some type is work
+    
+    ret = breakdown_values(str(values))
+    assert len(recwarn) == 1
+    assert ret == {"values" : values
+                   , "values_breakdown_error" : "Warning"}
+    
+    w = recwarn.pop()
+    assert w.category(UserWarning)
+    assert str(w.message)==("values is not valid but work")
+    
     
 def test_breakdown_values_warning_SE(recwarn):
     values = "{'int': 3, 'ndarray': array([[1, 2, 3],"
@@ -58,8 +65,8 @@ def test_breakdown_values_warning_SE(recwarn):
     assert ret == {"values" : "SyntaxError"}
     
     w = recwarn.pop()
-    assert w.category(Warning)
-    assert str(w.message)==("values is not valid type")
+    assert w.category(Warning) # [ToDo] Warning -> UserWarning
+    assert str(w.message)==("values is not valid")
 
 
 @pytest.mark.skip(reason="未実装")
