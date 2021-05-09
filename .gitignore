@@ -131,3 +131,6 @@ dmypy.json
 # add by myself
 ## VScode setting
 .vscode/
+
+## tempfile
+temp.py
