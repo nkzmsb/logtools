@@ -41,9 +41,10 @@ def test_breakdown_values_notdict():
 def test_breakdown_values_warning_SE(recwarn):
     values = "{'int': 3, 'ndarray': array([[1, 2, 3],"
     
-    breakdown_values(values)
+    ret = breakdown_values(values)
     
     assert len(recwarn) == 1
+    assert ret == {"values" : "SyntaxError"}
     
     w = recwarn.pop()
     assert w.category(Warning)
