@@ -9,19 +9,6 @@ ATTRIBUTES = DEFAULT["attributes"]
 # FORMATTER = DEFAULT["formatter"]
 # SPLITTER = DEFAULT["splitter"]
 
-def test_dummylogs(valid_typ_log):
-    """fixtureのダミーログが正しく作れていることを確認する
-    
-    引数のfixtureはconftest.pyで定義されている
-    （fixtureの使い方の練習も兼ねて）
-    """
-    print(valid_typ_log)
-    
-    assert valid_typ_log == ("2021-05-08 21:57:23,823___INFO___DUMMYLOG"
-                             "___FUNC___run___dummyError : [-1, -1, -1]___d_message___None___"
-                             "{'A': 'AAA', 'int': 3, "
-                             "'nest': {'A': 'nestA', "
-                             "'BB': {'bnest': [1, 2, 3], 'tag': True}}}")
 
 @pytest.mark.parametrize("head, expect"
                          , [(None, "key"), ("h", "h-key")])
@@ -82,6 +69,7 @@ def test_breakdown_values_notdict(values, recwarn):
     
     
 def test_breakdown_values_warning_SE(recwarn):
+    # [ToDo] np.arrayを含んでいても無理
     values = "{'int': 3, 'ndarray': array([[1, 2, 3],"
     
     ret = breakdown_values(values)
@@ -95,13 +83,13 @@ def test_breakdown_values_warning_SE(recwarn):
 
 
 def test_log_to_dict(valid_typ_log):
-    expect = {"asctime":"2021-05-08 21:57:23,823"
+    expect = {"asctime":"2021-05-09 16:30:12,093"
               , "levelname" : "INFO"
               , "name" : "DUMMYLOG"
               , "func" : "FUNC"
               , "action":"run"
-              , "exception":None
-              , "message" : "d_message"
+              , "exception": "dummyError : [-1, -1, -1]"
+              , "message" : "valid_typ_log"
               , "tag":None
               , "A":"AAA"
               , "int" : 3
@@ -112,12 +100,12 @@ def test_log_to_dict(valid_typ_log):
     
     assert log_to_dict(valid_typ_log) == expect
     
-def test_log_to_dict_raise(recwarn):
+def test_log_to_dict_formaterror(recwarn, invalid_short_log):
     
-    ret = breakdown_values(log_str)
+    ret = log_to_dict(invalid_short_log)
     
     assert len(recwarn) == 1
-    assert ret == {"values" : log_str, "convert_exception" : "strange format"}
+    assert ret == {"values" : invalid_short_log, "convert_exception" : "strange format"}
     
     w = recwarn.pop()
     assert w.category(UserWarning)

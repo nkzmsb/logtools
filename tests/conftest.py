@@ -9,40 +9,33 @@ from logtools.default import default
 FORMATTER = default()["formatter"]
 
 @pytest.fixture(scope="module")
-def valid_typ_log(tmpdir_factory):
+def valid_typ_log():
     """loganal.pyで取り扱えるタイプのログ（１つ）を作成する
     """
-    temp_dir = tmpdir_factory.mktemp("temp_dir")
-    temp_file = temp_dir.join("temp_file.log")
+    ret = ("2021-05-09 16:30:12,093___INFO___DUMMYLOG___FUNC___"
+           "run___dummyError : [-1, -1, -1]___valid_typ_log___None___"
+           "{'A': 'AAA', 'int': 3, 'nest': {'A': 'nestA', 'BB': {'bnest': [1, 2, 3], 'tag': True}}}")
     
-    logger = logging.getLogger("DUMMYLOG")
-    logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(FORMATTER[14:]) # asctimeは固定値を付加するため削除
-    handler = logging.FileHandler(temp_file)
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    return ret
+
+def invalid_short_log():
+    """フォーマットが異なり、loganal.pyで取り扱えないログ（１つ）を作成する
+    """
+    ret = ("INFO___invalid_short_log___"
+           "{'A': 'AAA', 'int': 3, 'nest': {'A': 'nestA', 'BB': {'bnest': [1, 2, 3], 'tag': True}}}")
     
-    try:
-        raise ValueError("dummyError : {}".format([-1,-1,-1]))
-    except ValueError as ve:
-        exc = ve
-        
-    
-    dummy_extra = {"func":"FUNC", "action":"run", "exception":exc, "tag":None
-                   , "values":{"A":"AAA"
-                               , "int" : 3
-                               , "nest" : {"A" : "nestA"
-                                           , "BB" : {"bnest" : [1,2,3]
-                                                     , "tag" : True}
-                                           }
-                               }
-                   }
-    logger.info("d_message", extra = dummy_extra)
-    
-    unitlog = temp_file.read()
-    unitlog = "2021-05-08 21:57:23,823___" + unitlog # acstimeは固定値を付加
-    
-    return unitlog.replace( '\n' , '' )
+    return ret
+
+# [ToDo] numpy件はtest_breakdown_values_warning_SEに追加する
+# def invalid_np_log():
+#     """valueが解析できずに、loganal.pyで取り扱えないログ（１つ）を作成する
+#     """
+#     
+#     ret = ("2021-05-09 16:46:55,637___INFO___DUMMYLOG___FUNC___"
+#            "run___dummyError : [-1, -1, -1]___invalid_np_log___None___"
+#            "{'A': array([1, 2, 3])}")
+#     
+#     return ret
     
 
 # ===参考===
