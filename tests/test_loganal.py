@@ -94,7 +94,6 @@ def test_breakdown_values_warning_SE(recwarn):
     assert str(w.message)==("values is not valid")
 
 
-@pytest.mark.skip(reason="未実装")
 def test_log_to_dict(valid_typ_log):
     expect = {"asctime":"2021-05-08 21:57:23,823"
               , "levelname" : "INFO"
@@ -112,6 +111,17 @@ def test_log_to_dict(valid_typ_log):
               }
     
     assert log_to_dict(valid_typ_log) == expect
+    
+def test_log_to_dict_raise(recwarn):
+    
+    ret = breakdown_values(log_str)
+    
+    assert len(recwarn) == 1
+    assert ret == {"values" : log_str, "convert_exception" : "strange format"}
+    
+    w = recwarn.pop()
+    assert w.category(UserWarning)
+    assert str(w.message)==("strange format")
 
 @pytest.mark.skip(reason="未実装")
 def test_logfile_converter():
