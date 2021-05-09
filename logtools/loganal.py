@@ -3,11 +3,11 @@ import ast
 import warnings
 
 
-def keymake(k, head_str = None):
+def keymake(k_str, head_str = None):
     if head_str:
-        return head_str + "-" + k
+        return head_str + "-" + k_str
     else:
-        return k
+        return k_str
 
 
 def expand_dict(dic, head_str = None):
