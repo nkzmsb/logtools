@@ -1,7 +1,22 @@
 
+import ast
+import warnings
 
-def breakdown_values(values_dic):
-    return {"aa":0}
+
+def breakdown_values(values):
+    
+    try:
+        values = ast.literal_eval(values)
+    except SyntaxError:
+        warnings.warn("values is not valid type")
+        return {"values" : "SyntaxError"}
+    
+    if type(values)==dict:
+        res_dic = {"AAA" : "AAA"}
+    else:
+        res_dic = {"values" : values}
+    
+    return res_dic
 
 
 def log_to_dict(unitlog_str)->dict:

@@ -36,7 +36,7 @@ def test_breakdown_values():
     assert breakdown_values(values) == expect
 
 def test_breakdown_values_notdict():
-    assert breakdown_values(5) == {"values" : 5}
+    assert breakdown_values("5") == {"values" : 5}
     
 def test_breakdown_values_warning_SE(recwarn):
     values = "{'int': 3, 'ndarray': array([[1, 2, 3],"
