@@ -1,7 +1,8 @@
+import os
 
 import pytest
 
-from logtools.loganal import breakdown_values, expand_dict, keymake, log_to_dict
+from logtools.loganal import breakdown_values, expand_dict, keymake, log_to_dict, renamefiles
 from logtools.default import default
 
 DEFAULT = default()
@@ -116,11 +117,25 @@ def test_logfile_converter():
     # データとexpectの準備が面倒くさい
     ...
 
-@pytest.mark.skip(reason="未実装")
-def test_rename():
+def test_renamefiles(tmpdir):
     # 一時フォルダにlogdata.log, logdata.log2, logdata.log3, dummy.txtを準備する
     # 処理後に、logdata_1.log, logdata_2.log, logdata_3.log, dummy.txtになっていることを確認する
-    ...
+    
+    f1 = tmpdir.join("abc.log")
+    f2 = tmpdir.join("abc.log2")
+    f3 = tmpdir.join("abc.log3")
+    f1.write("I am f1")
+    f2.write("I am f2")
+    f3.write("I am f3")
+    
+    renamefiles(tmpdir)
+    
+    res = set(tmpdir.listdir())
+    expect = set([os.path.join(tmpdir, "abc_1.log")
+                  , os.path.join(tmpdir, "abc_2.log")
+                  , os.path.join(tmpdir, "abc_3.log")])
+    
+    assert res == expect
     
     
 

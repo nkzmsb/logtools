@@ -151,6 +151,7 @@ def log_to_dict(unitlog_str, attributes_tpl = ATTRIBUTES, splitter_str = SPLITTE
             v_lit = v
         ret_dic[k] = v_lit
     
+    # values属性の処理
     val_dic = breakdown_values(log_ls[-1])
     ret_dic.update(val_dic)
     
