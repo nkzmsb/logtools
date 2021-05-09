@@ -1,7 +1,11 @@
 
 import ast
+import glob
+import os
+import re
 import warnings
 
+# from default import default
 from logtools.default import default
 
 ATTRIBUTES = default()["attributes"]
@@ -159,12 +163,67 @@ def log_to_dict(unitlog_str, attributes_tpl = ATTRIBUTES, splitter_str = SPLITTE
 
 def logfile_converter(filepath)->"list of dict":
     # log_to_dict()をループ
-    ...
+
+    with open(filepath,"r") as f:
+        log_ls = []
+        for line in f:
+            log_ls.append(log_to_dict(line.replace("\n", "")))
     
-def renamefiles(dirpath):
-    # フォルダ内の**.log#を**_#.logに変換
-    # 変換後のファイル名のリストをreturn
-    ...
+    return log_ls
+    
+def newlogfilename(prename, base):
+    match = re.search(r'\.log.+', prename)
+    if match:
+        num = match.group()[4:]
+    else:
+        num = "1"
+    
+    return base + "_" + num + ".log"
+        
+
+def renamefiles(dirpath, base):
+    """RotatingFileHandlerで作成されたlogファイル名を修正する
+    
+    dirpathディレクトリ内の"*.log#"という名前のファイルを
+    "[base]_#.log"という名前に変更する。
+    *は任意の文字列、#は番号（任意の文字列でも動作）
+
+    Parameters
+    ----------
+    dirpath : path
+        logファイルが収められているディレクトリのパス
+    base : str
+        修正後ファイルの名前のベース部分
+
+    Returns
+    -------
+    list of path
+        修正後のファイルパスのリスト
+        
+    # [FutureWork]
+    # - ディレクトリにややこしい名前のファイルも存在する場合に対応する
+    # - 2回以上実行すると変なファイル名になってしまう
+    # - logファイルが見つからない場合のException
+    """
+    
+    filepath_ls = glob.glob(os.path.join(os.path.abspath(dirpath),"*"))
+    filename_ls = [os.path.basename(p) for p in filepath_ls]
+    
+    change_ls = [] #(変更前, 変更後)のタプルのリスト
+    for f in filename_ls:
+        match = re.match(r'.*\.log.*', f)
+        if match:
+            tar = match.group()
+            change_ls.append((tar, newlogfilename(tar, base)))
+    
+    tar_ls = []
+    for change in change_ls:
+        tar = os.path.join(os.path.abspath(dirpath), change[1])
+        tar_ls.append(tar)
+        os.rename(os.path.join(os.path.abspath(dirpath), change[0])
+                  , tar)
+        
+    return tar_ls
 
 
 class LogData():
@@ -182,3 +241,8 @@ class LogData():
     # [FutureWork]
     # def export_db(self):
     #     ...
+    
+    
+if __name__ == "__main__":
+    import pandas as pd
+    print(pd.DataFrame(logfile_converter("loglog.log")))

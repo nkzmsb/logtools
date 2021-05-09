@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from logtools.loganal import breakdown_values, expand_dict, keymake, log_to_dict, renamefiles
+from logtools.loganal import breakdown_values, expand_dict, keymake, log_to_dict, newlogfilename, renamefiles
 from logtools.default import default
 
 DEFAULT = default()
@@ -112,10 +112,15 @@ def test_log_to_dict_formaterror(recwarn, invalid_short_log):
     assert w.category(UserWarning)
     assert str(w.message)==("strange format")
 
-@pytest.mark.skip(reason="未実装")
+@pytest.mark.skip(reason="面倒なので未実装")
 def test_logfile_converter():
     # データとexpectの準備が面倒くさい
     ...
+
+def test_newlogfilename():
+    assert newlogfilename("abc.log4", "opq") == "opq_4.log"
+    assert newlogfilename("abc.log", "opq") == "opq_1.log"
+    
 
 def test_renamefiles(tmpdir):
     # 一時フォルダにlogdata.log, logdata.log2, logdata.log3, dummy.txtを準備する
@@ -128,15 +133,15 @@ def test_renamefiles(tmpdir):
     f2.write("I am f2")
     f3.write("I am f3")
     
-    renamefiles(tmpdir)
+    ret = renamefiles(tmpdir, "kkk")
     
-    res = set(tmpdir.listdir())
-    expect = set([os.path.join(tmpdir, "abc_1.log")
-                  , os.path.join(tmpdir, "abc_2.log")
-                  , os.path.join(tmpdir, "abc_3.log")])
+    res = set([os.path.abspath(p) for p in tmpdir.listdir()])
+    expect = set([os.path.join(tmpdir, "kkk_1.log")
+                  , os.path.join(tmpdir, "kkk_2.log")
+                  , os.path.join(tmpdir, "kkk_3.log")])
     
     assert res == expect
-    
+    assert set(ret) == expect
     
 
 # [ToDo]以下の項目でExceptionのテストが必要
@@ -145,7 +150,8 @@ def test_renamefiles(tmpdir):
 # - /項目の数が違う(@log_to_dict)
 # - /ast.literal_evalのSyntaxError(@breakdown_values)
 # Exception
-# - ログファイルが見つからない(@renamefiles)
+# - [FW]ログファイルが見つからない(@renamefiles)
+# - ログファイルが見つからない(@LogData)
 
 
 
