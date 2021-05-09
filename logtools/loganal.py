@@ -15,8 +15,6 @@ ATTRIBUTES = default()["attributes"]
 FORMATTER = default()["formatter"]
 SPLITTER = default()["splitter"]
 
-
-
 def keymake(k_str, head_str = None):
     if head_str:
         return head_str + "-" + k_str
