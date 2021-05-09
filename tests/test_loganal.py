@@ -35,8 +35,19 @@ def test_breakdown_values():
     
     assert breakdown_values(values) == expect
 
-def test_breakdown_values_notdict():
-    assert breakdown_values("5") == {"values" : 5}
+@pytest.mark.parametrize("values"
+                         , [5
+                            , 3.14
+                            , (1,2)
+                            , [1,2]
+                            , [[1,2], [3,4]]
+                            , "Who am I?"
+                            , True])
+def test_breakdown_values_notdict(values):
+    if type(values) != str:
+        assert breakdown_values(str(values)) == {"values" : values}
+    else:
+        assert breakdown_values(values) == {"values" : values}
     
 def test_breakdown_values_warning_SE(recwarn):
     values = "{'int': 3, 'ndarray': array([[1, 2, 3],"
