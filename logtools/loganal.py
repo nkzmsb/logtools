@@ -11,6 +11,25 @@ def keymake(k_str, head_str = None):
 
 
 def expand_dict(dic, head_str = None):
+    """dicの内容を展開する
+    
+    dicのネストを一段階展開する
+    実際の動作はネストされている辞書をremain_dicにまとめる
+
+    Parameters
+    ----------
+    dic : dict
+        展開する辞書
+    head_str : str, optional
+        展開後の辞書のヘッダー, by default None
+
+    Returns
+    -------
+    expanded_dic : dict
+        ネストされていない辞書
+    remain_dic : dict
+        ネストされていた辞書
+    """
     # dictの内容を展開する
     
     expanded_dic = {}
