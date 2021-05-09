@@ -3,6 +3,27 @@ import ast
 import warnings
 
 
+def keymake(k, head_str = None):
+    if head_str:
+        return head_str + "-" + k
+    else:
+        return k
+
+
+def expand_dict(dict, head_str = None):
+    # dictの内容を展開する
+    
+    expanded_dic = {}
+    remain_dic = {}
+    for k,v in dict.items():
+        if type(v) == dict:
+            remain_dic[keymake(k, head_str)] = v
+        else:
+            expanded_dic[keymake(k, head_str)] = v
+            
+    return expanded_dic, remain_dic
+
+
 def breakdown_values(values):
     
     try:

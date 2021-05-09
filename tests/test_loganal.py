@@ -1,7 +1,7 @@
 
 import pytest
 
-from logtools.loganal import breakdown_values, log_to_dict
+from logtools.loganal import breakdown_values, expand_dict, keymake, log_to_dict
 from logtools.default import default
 
 DEFAULT = default()
@@ -23,6 +23,19 @@ def test_dummylogs(valid_typ_log):
                              "'nest': {'A': 'nestA', "
                              "'BB': {'bnest': [1, 2, 3], 'tag': True}}}")
 
+@pytest.mark.parametrize("head, expect"
+                         , [(None, "key"), ("h", "h-key")])
+def test_keymake(head, expect):
+    assert keymake("key", head) == expect
+
+
+def test_expand_dict():
+    dic = {"A" : 1, "Nest" : {"B" : "BBB", "C" : [3,4]}, "D" : (3,4,5)}
+    
+    res, exist = expand_dict(dic)
+    
+    assert res == {"A" : 1, "Nest-B" : "BBB", "Nest-C" : [3,4], "D" : (3,4,5)}
+    assert exist == False
 
 def test_breakdown_values():
     values = ("{'A': 'AAA', 'int': 3,"
