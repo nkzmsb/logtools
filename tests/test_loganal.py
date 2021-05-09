@@ -30,20 +30,24 @@ def test_keymake(head, expect):
 
 
 def test_expand_dict():
-    dic = {"A" : 1, "Nest" : {"B" : "BBB", "C" : [3,4]}, "D" : (3,4,5)}
+    dic = {"A" : 1, "Nest" : {"B" : "BBB", "C" : [3,4]}, "D" : (3,4,5)
+           , "Nest2" : {"B2" : "QQQ", "C" : (3,4)}}
     
     expanded, remain = expand_dict(dic)
     
     assert expanded == {"A" : 1, "D" : (3,4,5)}
-    assert remain == {"Nest" : {"B" : "BBB", "C" : [3,4]}}
+    assert remain == {"Nest" : {"B" : "BBB", "C" : [3,4]}
+                      , "Nest2" : {"B2" : "QQQ", "C" : (3,4)}}
     
 def test_expand_dict_withhead():
-    dic = {"A" : 1, "Nest" : {"B" : "BBB", "C" : [3,4]}, "D" : (3,4,5)}
+    dic = {"A" : 1, "Nest" : {"B" : "BBB", "C" : [3,4]}, "D" : (3,4,5)
+           , "Nest2" : {"B2" : "QQQ", "C" : (3,4)}}
     
     expanded, remain = expand_dict(dic, "h-hh")
     
     assert expanded == {"h-hh-A" : 1, "h-hh-D" : (3,4,5)}
-    assert remain == {"h-hh-Nest" : {"B" : "BBB", "C" : [3,4]}}
+    assert remain == {"h-hh-Nest" : {"B" : "BBB", "C" : [3,4]}
+                      , "h-hh-Nest2" : {"B2" : "QQQ", "C" : (3,4)}}
 
 def test_breakdown_values():
     values = ("{'A': 'AAA', 'int': 3,"
