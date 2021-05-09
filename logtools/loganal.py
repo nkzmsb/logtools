@@ -44,6 +44,32 @@ def expand_dict(dic, head_str = None):
 
 
 def breakdown_values(values):
+    """辞書のログ内容（文字列）を展開された辞書型に変換する
+    
+    辞書のネストはすべて展開される
+
+    Parameters
+    ----------
+    values : str
+        ast.literal_eval(values)で辞書型が返る文字列
+
+    Returns
+    -------
+    dict
+        展開された辞書
+        
+    Warnings
+    -------
+    UserWarning(values is not valid)
+        valuesが辞書型に変換することができず、文字列としか認識できない場合
+        返値の辞書には"values"キーに引数の文字列がそのまま、
+        "values_breakdown_error"キーに"Error"が入る
+    
+    UserWarning(values is not valid but work)
+        valuesが辞書型に変換することができないが、そのほかの型として認識できる場合
+        返値の辞書には"values"キーに評価された引数の値が、
+        "values_breakdown_error"キーに"Warning"が入る
+    """
     
     try:
         values_lit = ast.literal_eval(values)
@@ -51,8 +77,24 @@ def breakdown_values(values):
         warnings.warn("values is not valid")
         return {"values" : values, "values_breakdown_error" : "Error"}
     
-    if type(values)==dict:
-        res_dic = {"AAA" : "AAA"}
+    if type(values_lit)==dict:
+        
+        expanded_dic, remain_dic = expand_dict(values_lit)
+        
+        while True:
+            try:
+                k,v = remain_dic.popitem()
+            except KeyError:
+                # remain_dic is empty
+                break
+            
+            new_exp_dic, still_rem_dic = expand_dict(v, k)
+            
+            expanded_dic.update(new_exp_dic)
+            remain_dic.update(still_rem_dic)
+        
+        res_dic = expanded_dic
+        
     else:
         # Only dict is valid as type of values_lit
         # but some other type also works. 
