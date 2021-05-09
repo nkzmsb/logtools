@@ -144,6 +144,10 @@ def test_renamefiles(tmpdir):
     assert set(ret) == expect
     
 
+@pytest.mark.skip(reason="面倒なので未実装")
+class TestLogData():
+    ...
+
 # [ToDo]以下の項目でExceptionのテストが必要
 # Warning
 # - /そもそも入りが違う(@log_to_dict)
@@ -151,7 +155,6 @@ def test_renamefiles(tmpdir):
 # - /ast.literal_evalのSyntaxError(@breakdown_values)
 # Exception
 # - [FW]ログファイルが見つからない(@renamefiles)
-# - ログファイルが見つからない(@LogData)
 
 
 

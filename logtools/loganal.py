@@ -1,9 +1,12 @@
 
 import ast
+import copy
 import glob
 import os
 import re
 import warnings
+
+import pandas as pd
 
 # from default import default
 from logtools.default import default
@@ -227,16 +230,21 @@ def renamefiles(dirpath, base):
 
 
 class LogData():
-    def __init__(self):
-        # renamefiles()
-        # logfile_converterのループ
-        # self.log_dfの作成
-        ...
+    def __init__(self, logfilepath_ls):
+        """
+        Parameters
+        ----------
+        logfilepath_ls : list of path
+            logファイルのパスのリスト
+        """
+        df_ls = []
+        for path in logfilepath_ls:
+            df_ls.append(pd.DataFrame(logfile_converter(path)))
+        self._log_df = pd.concat(df_ls)
         
     @property
     def log_df(self):
-        # self.log_dfのコピーを返す
-        ...
+        return copy.deepcopy(self._log_df)
         
     # [FutureWork]
     # def export_db(self):
@@ -244,5 +252,4 @@ class LogData():
     
     
 if __name__ == "__main__":
-    import pandas as pd
     print(pd.DataFrame(logfile_converter("loglog.log")))
