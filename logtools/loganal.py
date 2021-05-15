@@ -1,10 +1,12 @@
 
 import ast
 import copy
+from __future__ import annotations # python3.9以降では不要
 import glob
 import os
 import re
 import warnings
+
 
 import pandas as pd
 
@@ -161,7 +163,7 @@ def log_to_dict(unitlog_str, attributes_tpl = ATTRIBUTES, splitter_str = SPLITTE
     
     return ret_dic
 
-def logfile_converter(filepath)->"list of dict":
+def logfile_converter(filepath)->list[dict]:
     # log_to_dict()をループ
 
     with open(filepath,"r") as f:
