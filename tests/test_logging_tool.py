@@ -20,4 +20,4 @@ def test_get_funcname_at_class():
     cc = CallingClass()
     
     assert cc.in_init == "CallingClass.__init__"
-    assert cc.calling_method == "CallingClass.calling_method"
+    assert cc.calling_method() == "CallingClass.calling_method"
