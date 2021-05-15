@@ -30,7 +30,7 @@ class Logger():
         ...
    
         
-def get_funcname(layer:int = 0)->str:
+def get_funcname(layer:int = 1)->str:
     """呼び出し元の関数名を返す
     
     呼び出し元がクラスメソッドの場合、
@@ -39,9 +39,9 @@ def get_funcname(layer:int = 0)->str:
     クラス名の取得が少し強引。もっといい方法があるかも。
     """
     
-    frame = inspect.stack()[1] # https://docs.python.org/ja/3/library/inspect.html#inspect.stack
+    frame = inspect.stack()[layer] # https://docs.python.org/ja/3/library/inspect.html#inspect.stack
     function_name = frame.function
-    locals_dic = inspect.getargvalues(frame[layer]).locals
+    locals_dic = inspect.getargvalues(frame[0]).locals
     if ("self" in locals_dic.keys()):
         # 名前空間内にselfがある場合、呼び出し元はメソッド関数であると判断してクラス名を取りに行く
         class_name = locals_dic["self"].__class__.__name__
@@ -51,14 +51,14 @@ def get_funcname(layer:int = 0)->str:
     
     
 if __name__ == "__main__":
-    class CallingClass():
-        def __init__(self):
-            self.in_init = get_funcname()
-            
-        def calling_method(self):
-            aaa = get_funcname()
-            print(aaa)
-            return get_funcname()
+    def deco(f):
+        def wrapper():
+            print("in wrapper:",f.__name__)
+            return f()
+        return wrapper
         
-    cc = CallingClass()
-    print(cc.calling_method())
+    @deco
+    def callingfunc():
+        return get_funcname()
+    
+    print(callingfunc())
