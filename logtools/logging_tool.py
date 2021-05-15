@@ -29,5 +29,5 @@ class Logger():
         ...
    
         
-def get_func():
+def get_funcname():
     ...
