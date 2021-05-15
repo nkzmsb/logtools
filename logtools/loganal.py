@@ -8,7 +8,6 @@ import warnings
 
 import pandas as pd
 
-# from default import default
 from logtools.default import default
 
 ATTRIBUTES = default()["attributes"]
@@ -250,4 +249,9 @@ class LogData():
     
     
 if __name__ == "__main__":
-    print(pd.DataFrame(logfile_converter("loglog.log")))
+    # print(pd.DataFrame(logfile_converter("loglog.log")))
+    
+    ld = LogData(["loglog.log"])
+    pd = ld.log_df
+    
+    print(pd[pd["convert_exception"]!="strange format"])
