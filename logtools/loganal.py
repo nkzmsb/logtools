@@ -1,7 +1,8 @@
 
+from __future__ import annotations # python3.9以降では不要
+
 import ast
 import copy
-from __future__ import annotations # python3.9以降では不要
 import glob
 import os
 import re
