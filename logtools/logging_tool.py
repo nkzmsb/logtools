@@ -1,6 +1,20 @@
 
+import dataclasses
 import logging
 import inspect
+
+from logtools.default import default
+
+ATTRIBUTE_EXTRA = default()["attribute_extra"]
+
+
+# [FutureWork]
+# make_dataclassは動的にdataclassを作れるため便利だが
+# テストがしにくいし、あまりいい方法ではない。
+# 改善が望まれる。
+# 型がanyになっているのも、実害はないが好ましい状態ではない。
+LogData = dataclasses.make_dataclass(cls_name = "LogData"
+                                     , fields = [(attr, any, None) for attr in ATTRIBUTE_EXTRA])
 
 class Logger():
     def __init__(self, name):
@@ -67,4 +81,4 @@ if __name__ == "__main__":
     def callingfunc():
         return get_funcname()
     
-    print(callingfunc())
+    print(LogData())
