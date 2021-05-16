@@ -12,7 +12,21 @@ ATTRIBUTE_BUILT_IN_ALL = ["asctime", "created", "filename", "funcName"
 
 from inspect import signature
 
+def _get_params(func) -> set:
+    """関数のパラメータを取得する
+    """
+    args_set = set(signature(func).parameters.keys())
+    
+    return args_set - set(["args", "kwargs"])
+
 class LogDataConfig():
+    """ロギングの設定
+    
+    - ここでは設定部分のみが定義される
+    - ロギング用クラスにはこのクラスを継承させることで、ロギングに設定を反映する
+    - 解析用モジュールには、そこでインスタンス化することで設定を反映する
+    """ 
+    
     def __init__(self):
         ...
         
