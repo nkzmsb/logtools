@@ -3,12 +3,18 @@ import logging
 import inspect
 
 class Logger():
-    def __init__(self):
-        ...
+    def __init__(self, name):
+        self.__logger = logging.getLogger(name)
+        self.__logger.addHandler(logging.NullHandler())
+        self.__name = name
         
+    @property
     def logger(self):
-        # return logging.Loggerインスタンス
-        ...
+        return self.__logger
+    
+    @property
+    def name(self):
+        return self.__name
         
     def log_deco(self):
         # トレース用ログ自動作成デコレータ
