@@ -46,8 +46,7 @@ class LogDataConfig():
               , action = None
               , function = None
               , tag = None
-              , values = None
-              , **args):
+              , values = None):
         ...
         
     def info(self
@@ -55,12 +54,22 @@ class LogDataConfig():
              , action = None
              , function = None
              , tag = None
-             , values = None
-             , **args):
+             , values = None):
         ...
+        
+    def warning(self
+             , message = None
+             , action = None
+             , function = None
+             , tag = None
+             , values = None):
+        ...    
         
     def _get_args(self, func):
         return set(signature(func).parameters.keys())
+    
+    def _get_all_attributes(self):
+        ...
         
 #     def _args(self):
 #         print(set(signature(self.debug).parameters.keys()))
