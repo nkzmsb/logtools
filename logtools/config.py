@@ -10,8 +10,10 @@ ATTRIBUTE_BUILT_IN_ALL = ["asctime", "created", "filename", "funcName"
                           , "msecs", "name", "pathname", "process", "processName"
                           , "relativeCreated", "thread", "threadName"]
 
+import inspect
 from inspect import signature
 
+# いらない気がする。。
 def _get_params(func) -> set:
     """関数のパラメータを取得する
     """
@@ -19,13 +21,22 @@ def _get_params(func) -> set:
     
     return args_set - set(["args", "kwargs"])
 
+# これもいらない気がする。。
+def _get_getargvalues():
+    parent_frame = inspect.currentframe().f_back
+    info = inspect.getargvalues(parent_frame)
+    return {key: info.locals[key] for key in info.args}
+
 class LogDataConfig():
     """ロギングの設定
     
     - ここでは設定部分のみが定義される
     - ロギング用クラスにはこのクラスを継承させることで、ロギングに設定を反映する
     - 解析用モジュールには、そこでインスタンス化することで設定を反映する
-    """ 
+    """
+    
+    #[ToDo] kwargsとかいらない。
+    # この形式にのっとりたくなければ、普通にログ取ればいい
     
     def __init__(self):
         ...
