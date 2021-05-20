@@ -51,14 +51,10 @@ class TestLogger():
     def test_get_args(self):
         expect_debug = set(["message", "action", "function", "tag", "values"])
         assert self.logger._get_args(self.logger.debug) == expect_debug
-        
-    def test_get_all_attributes(self):
-        attribs_ls = ["asctime", "levelname", "name", "func"
-                      , "action", "exception", "message", "tag", "values"
-                      ]
-        expect = LoggingSetting(attributes = attribs_ls, splitter = "___")
-        assert self.logger._get_all_attributes() == expect
     
+    def test_get_extra_attribs(self):
+        expect = set(['values', 'tag', 'function', 'expection', 'message', 'action'])
+        assert self.logger._get_extra_attribs() == expect
     
     @pytest.mark.parametrize("attrib, expect"
                              , [(['values', 'tag', 'function', 'expection', 'message', 'action']
@@ -70,4 +66,11 @@ class TestLogger():
                                 ])
     def test_is_attribs_available(self, attrib, expect):
         assert self.logger._is_attribs_available(set(attrib)) == expect
+        
+    def test_make_loggingsetting(self):
+        attribs_ls = ["asctime", "levelname", "name", "func"
+                      , "action", "exception", "message", "tag", "values"
+                      ]
+        expect = LoggingSetting(attributes = attribs_ls, splitter = "___")
+        assert self.logger._make_loggingsetting() == expect
         
