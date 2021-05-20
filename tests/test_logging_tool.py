@@ -53,6 +53,21 @@ class TestLogger():
         assert self.logger._get_args(self.logger.debug) == expect_debug
         
     def test_get_all_attributes(self):
-        attribs_ls = ["message", "action", "function", "tag", "values", "expection"]
+        attribs_ls = ["asctime", "levelname", "name", "func"
+                      , "action", "exception", "message", "tag", "values"
+                      ]
         expect = LoggingSetting(attributes = attribs_ls, splitter = "___")
         assert self.logger._get_all_attributes() == expect
+    
+    
+    @pytest.mark.parametrize("attrib, expect"
+                             , [(['values', 'tag', 'function', 'expection', 'message', 'action']
+                                 , True)
+                                , (['values', 'tag', 'function', 'expection', 'message']
+                                   , False) # 不足
+                                , (['values', 'tag', 'function', 'foo', 'expection', 'message', 'action']
+                                   , True) # 過剰
+                                ])
+    def test_is_attribs_available(self, attrib, expect):
+        assert self.logger._is_attribs_available(set(attrib)) == expect
+        
