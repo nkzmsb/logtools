@@ -87,7 +87,7 @@ class Logger():
         else:
             self.__logger = None
             
-        self.logsetting = self._get_all_attributes()
+        self.logsetting = self._make_loggingsetting()
             
         
     @property
@@ -122,26 +122,47 @@ class Logger():
         
     def warning(self
                 , message = None
-                , action = None
+                , expection = None
                 , function = None
-                , tag = None
                 , values = None):
         ...
         
-    def error(self):
+    def error(self
+              , message = None
+              , expection = None
+              , function = None
+              , values = None):
         ...
         
-    def critical(self):
+    def critical(self
+                 , message = None
+                 , expection = None
+                 , function = None
+                 , values = None):
         ...
         
     def _get_args(self, func) -> set:
         # メソッド（関数）のパラメータを取得する
         return set(signature(func).parameters.keys())
     
-    def _get_all_attributes(self) -> LoggingSetting:
-        # - ログメソッドのパラメータを重複なく取得する->extra attribute
-        # - LoggingSettingを作成する
+    def _get_extra_attribs(self) -> set:
+        """組み込みではないログ属性のsetを取得する
+        
+        ログメソッドのパラメータを重複なく取得する
+        """
+        attrib_set = self._get_args(self.debug)
+        attrib_set = attrib_set | self._get_args(self.info)
+        attrib_set = attrib_set | self._get_args(self.warning)
+        attrib_set = attrib_set | self._get_args(self.error)
+        attrib_set = attrib_set | self._get_args(self.critical)
+        
+        return attrib_set
+    
+    def _is_attribs_available(self, attrib_set) -> bool:
         #   - formatが実現できるのかどうかを確認
+        ...
+    
+    def _make_loggingsetting(self) -> LoggingSetting:
         ...
         
     def _logging(self, extralogdata, level, message = None):
