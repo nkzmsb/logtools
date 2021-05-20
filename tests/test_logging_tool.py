@@ -1,7 +1,7 @@
 
 import pytest
 
-from logtools.logging_tool import get_funcname, LoggingSetting
+from logtools.logging_tool import get_funcname, LoggingSetting, Logger
 
 def test_get_funcname_at_func():
     def callingfunc():
@@ -34,3 +34,20 @@ class TestLoggingSetting():
         
     def test_post_ini(self):
         assert self.logset.format == "%(A)s___%(BBB)s___%(Car)s"
+        
+
+class TestLogger():
+    def setup_method(self,method):
+        print('method={}'.format(method.__name__))
+        self.logger = Logger("testlogger")
+
+    def teardown_method(self, method):
+        print('method={}'.format(method.__name__))
+        del self.logger
+        
+    def test_name_prop(self):
+        assert self.logger.name == "testlogger"
+        
+    def test_get_args(self):
+        expect_debug = set(["message", "action", "function", "tag", "values"])
+        assert self.logger._get_args(self.logger.debug) == expect_debug
