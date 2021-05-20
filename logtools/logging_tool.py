@@ -1,9 +1,10 @@
 
+from collections import namedtuple
 import dataclasses
 import logging
 import inspect
 from inspect import signature
-from typing import Awaitable
+from typing import List
 
 
 ##############################################
@@ -36,23 +37,17 @@ ATTRIBUTE_BUILT_IN_ALL = ["asctime", "created", "filename", "funcName"
 @dataclasses.dataclass
 class LoggingSetting():
     # ログの設定を格納するクラス
-    attributes : list[str]
+    attributes : List[str]
     splitter : str
     
-    def __post_init(self):
+    def __post_init__(self):
         # make format
-        self.fomat = ...
-
-
-# [Issue]ATTRIBUTE_EXTRAはLoggerクラス内で作られるので、
-# このクラス定義もLoggerクラス内に持っていく必要があるけど、どうやって？？
-# [FutureWork]
-# make_dataclassは動的にdataclassを作れるため便利だが
-# テストがしにくいし、あまりいい方法ではない。
-# 改善が望まれる。
-# 型がanyになっているのも、実害はないが好ましい状態ではない。
-ExtraLogData = dataclasses.make_dataclass(cls_name = "ExtraLogData"
-                                          , fields = [(attr, any, None) for attr in ATTRIBUTE_EXTRA])
+        form = "%(" + self.attributes[0] + ")s"
+        if len(self.attributes) > 1:
+            for attrib in self.attributes[1:]:
+                form += self.splitter + "%(" + attrib + ")s"
+                
+        self.format = form
 
 
 def get_funcname(layer:int = 1)->str:
@@ -139,7 +134,7 @@ class Logger():
     def critical(self):
         ...
         
-    def _get_args(self, func):
+    def _get_args(self, func) -> set:
         # メソッド（関数）のパラメータを取得する
         return set(signature(func).parameters.keys())
     
@@ -160,7 +155,9 @@ class Logger():
         #     self.__logger.info(msg = message
         #                        , extra=dataclasses.asdict(extralogdata))
         # elif ...
-   
+    
+    # ExtraLogData = namedtuple("ExtraLogData", ATTRIBUTE_EXTRA
+    #                           , defaults = list[None])
         
 
 

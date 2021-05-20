@@ -1,7 +1,7 @@
 
 import pytest
 
-from logtools.logging_tool import get_funcname
+from logtools.logging_tool import get_funcname, LoggingSetting
 
 def test_get_funcname_at_func():
     def callingfunc():
@@ -21,3 +21,16 @@ def test_get_funcname_at_class():
     
     assert cc.in_init == "CallingClass.__init__"
     assert cc.calling_method() == "CallingClass.calling_method"
+    
+class TestLoggingSetting():
+    def setup_method(self,method):
+        print('method={}'.format(method.__name__))
+        self.logset = LoggingSetting(attributes=["A", "BBB", "Car"]
+                                  , splitter = "___")
+
+    def teardown_method(self, method):
+        print('method={}'.format(method.__name__))
+        del self.logset
+        
+    def test_post_ini(self):
+        assert self.logset.format == "%(A)s___%(BBB)s___%(Car)s"
