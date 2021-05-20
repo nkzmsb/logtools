@@ -68,9 +68,9 @@ class TestLogger():
         assert self.logger._is_attribs_available(set(attrib)) == expect
         
     def test_make_loggingsetting(self):
-        attribs_ls = ["asctime", "levelname", "name", "func"
-                      , "action", "exception", "message", "tag", "values"
-                      ]
-        expect = LoggingSetting(attributes = attribs_ls, splitter = "___")
+        attribs_tpl = tuple(["asctime", "levelname", "name", "function"
+                             , "action", "exception", "message", "tag", "values"
+                             ])
+        expect = LoggingSetting(attributes = attribs_tpl, splitter = "___")
         assert self.logger._make_loggingsetting() == expect
         

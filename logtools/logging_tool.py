@@ -4,7 +4,7 @@ import dataclasses
 import logging
 import inspect
 from inspect import signature
-from typing import List
+from typing import Tuple
 
 
 ##############################################
@@ -37,7 +37,7 @@ ATTRIBUTE_BUILT_IN_ALL = ["asctime", "created", "filename", "funcName"
 @dataclasses.dataclass
 class LoggingSetting():
     # ログの設定を格納するクラス
-    attributes : List[str]
+    attributes : Tuple[str]
     splitter : str
     
     def __post_init__(self):
@@ -86,7 +86,8 @@ class Logger():
             self.__logger.addHandler(logging.NullHandler())
         else:
             self.__logger = None
-            
+        
+        self.extra_attribs = self._get_extra_attribs()    
         self.logsetting = self._make_loggingsetting()
             
         
@@ -181,7 +182,12 @@ class Logger():
         return set(ATTRIBUTES).issubset(all_attrib)
     
     def _make_loggingsetting(self) -> LoggingSetting:
-        ...
+        if self._is_attribs_available(self.extra_attribs):
+            return LoggingSetting(ATTRIBUTES, SPLITTER)
+        else:
+            raise ConfigurationError
+        
+        
         
     def _logging(self, extralogdata, level, message = None):
         # ExtraLogDataの内容をロギングする
@@ -199,7 +205,10 @@ class Logger():
     #                           , defaults = list[None])
         
 
-
+class ConfigurationError(Exception):
+    """Logger code and ATTRIBUTES are considered inconsistent
+    """
+    pass
     
 if __name__ == "__main__":
     def deco(f):
