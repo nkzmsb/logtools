@@ -51,3 +51,8 @@ class TestLogger():
     def test_get_args(self):
         expect_debug = set(["message", "action", "function", "tag", "values"])
         assert self.logger._get_args(self.logger.debug) == expect_debug
+        
+    def test_get_all_attributes(self):
+        attribs_ls = ["message", "action", "function", "tag", "values", "expection"]
+        expect = LoggingSetting(attributes = attribs_ls, splitter = "___")
+        assert self.logger._get_all_attributes() == expect
