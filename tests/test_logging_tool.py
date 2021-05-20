@@ -53,16 +53,16 @@ class TestLogger():
         assert self.logger._get_args(self.logger.debug) == expect_debug
     
     def test_get_extra_attribs(self):
-        expect = set(['values', 'tag', 'function', 'expection', 'action'])
+        expect = set(['values', 'tag', 'function', 'exception', 'action'])
         assert self.logger._get_extra_attribs() == expect
     
     @pytest.mark.parametrize("attrib, expect"
-                             , [(['values', 'tag', 'function', 'expection', 'action']
+                             , [(['values', 'tag', 'function', 'exception', 'action']
                                  , True)
-                                , (['values', 'tag', 'function', 'expection']
+                                , (['values', 'tag', 'function', 'exception']
                                    , False) # 不足
-                                , (['values', 'tag', 'function', 'foo', 'expection', 'action']
-                                   , False) # 過剰
+                                , (['values', 'tag', 'function', 'foo', 'exception', 'action']
+                                   , True) # 過剰は問題ない
                                 ])
     def test_is_attribs_available(self, attrib, expect):
         assert self.logger._is_attribs_available(set(attrib)) == expect

@@ -39,11 +39,11 @@
 # 設計
 ## ログの制限
 ログは以下のようなフォーマットでファイル出力するものとする  
-'%(asctime)s___%(levelname)s___%(name)s___%(func)s___%(action)s___%(expection)s___%(message)s___%(tag)s___%(values)s'  
+'%(asctime)s___%(levelname)s___%(name)s___%(func)s___%(action)s___%(exception)s___%(message)s___%(tag)s___%(values)s'  
 - 項目の区切りは"___(アンダースコア３つ)"とする。messageやvalueには任意の文字列を入れられるが、アンダースコアを3つ以上続けることは禁止する。
 - extraには以下のAttlibuteが設定されている
 -- action : "run", "finished", "ready", "check"。[debug, info]
--- expection : 例外情報。[warning, error, critical]
+-- exception : 例外情報。[warning, error, critical]
 -- func : 関数名。メソッドの場合は"クラス名.関数名"。[all]
 -- tag : タグ。"trace"[debug任意], "use"[info任意]。
 -- values : 任意の辞書。[任意]

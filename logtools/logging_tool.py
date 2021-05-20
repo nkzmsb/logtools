@@ -12,7 +12,7 @@ from typing import List
 ##############################################
 # [ログに含める属性]
 # この順番通りにログが作成される
-ATTRIBUTES = tuple(["asctime", "levelname", "name", "func"
+ATTRIBUTES = tuple(["asctime", "levelname", "name", "function"
                     , "action", "exception", "message", "tag", "values"
                     ])
 
@@ -122,21 +122,21 @@ class Logger():
         
     def warning(self
                 , message = None
-                , expection = None
+                , exception = None
                 , function = None
                 , values = None):
         ...
         
     def error(self
               , message = None
-              , expection = None
+              , exception = None
               , function = None
               , values = None):
         ...
         
     def critical(self
                  , message = None
-                 , expection = None
+                 , exception = None
                  , function = None
                  , values = None):
         ...
@@ -156,11 +156,29 @@ class Logger():
         attrib_set = attrib_set | self._get_args(self.error)
         attrib_set = attrib_set | self._get_args(self.critical)
         
-        return attrib_set
+        return attrib_set - set(["message"]) # messageは組み込み属性
     
-    def _is_attribs_available(self, attrib_set) -> bool:
-        #   - formatが実現できるのかどうかを確認
-        ...
+    def _is_attribs_available(self, extra_attrib_set) -> bool:
+        """ATTRIBUTESが実現できるのかどうかを確認
+        
+        Note
+        ----------
+        - extra_attrib_setにATTRIBUTESに含まれない属性が含まれていたとしても
+          ログ自体は正常に動作するのでTrueを返す
+
+        Parameters
+        ----------
+        extra_attrib_set : set of str
+            組み込みではないログ属性
+        """
+        # ATTRIBUTESが実現できるのかどうかを確認
+        if not(extra_attrib_set.isdisjoint(set(ATTRIBUTE_BUILT_IN_ALL))):
+            # extra_attrib_setが組み込みとかぶっていないこと
+            return False
+        
+        # ATTRIBUTESの要素がすべてログ情報に含まれること
+        all_attrib = extra_attrib_set | set(ATTRIBUTE_BUILT_IN_ALL)
+        return set(ATTRIBUTES).issubset(all_attrib)
     
     def _make_loggingsetting(self) -> LoggingSetting:
         ...
