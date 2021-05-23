@@ -87,7 +87,7 @@ def test_log_to_dict(valid_typ_log):
     expect = {"asctime":"2021-05-09 16:30:12,093"
               , "levelname" : "INFO"
               , "name" : "DUMMYLOG"
-              , "func" : "FUNC"
+              , "function" : "FUNC"
               , "action":"run"
               , "exception": "dummyError : [-1, -1, -1]"
               , "message" : "valid_typ_log"

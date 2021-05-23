@@ -50,7 +50,7 @@ class TestLogger():
         assert self.logger.name == "testlogger"
         
     def test_get_args(self):
-        expect_debug = set(["message", "action", "tag", "values"])
+        expect_debug = set(["message", "action", "tag", "values", "function"])
         assert self.logger._get_args(self.logger.debug) == expect_debug
     
     def test_get_extra_attribs(self):
