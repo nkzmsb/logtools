@@ -74,3 +74,9 @@ class TestLogger():
         expect = LoggingSetting(attributes = attribs_tpl, splitter = "___")
         assert self.logger._make_loggingsetting() == expect
         
+        
+    def test_ExtraLogData(self):
+        eld = self.logger._ExtraLogData()
+        
+        expect = {key : None for key in ["action", "values", "exception", "function", "tag"]}
+        assert dict(eld._asdict()) == expect

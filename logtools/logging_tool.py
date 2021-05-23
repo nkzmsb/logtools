@@ -89,6 +89,10 @@ class Logger():
         
         self.extra_attribs = self._get_extra_attribs()    
         self.logsetting = self._make_loggingsetting()
+        
+        # extra引数でログする内容のコンテナ
+        self._ExtraLogData = namedtuple("ExtraLogData", self.extra_attribs
+                                        , defaults = [None for _ in range(len(self.extra_attribs))])
             
         
     @property
@@ -200,9 +204,6 @@ class Logger():
         #     self.__logger.info(msg = message
         #                        , extra=dataclasses.asdict(extralogdata))
         # elif ...
-    
-    # ExtraLogData = namedtuple("ExtraLogData", ATTRIBUTE_EXTRA
-    #                           , defaults = list[None])
         
 
 class ConfigurationError(Exception):
@@ -211,14 +212,7 @@ class ConfigurationError(Exception):
     pass
     
 if __name__ == "__main__":
-    def deco(f):
-        def wrapper():
-            print("in wrapper:",f.__name__)
-            return f()
-        return wrapper
-        
-    @deco
-    def callingfunc():
-        return get_funcname()
+    aaa = Logger("AAA")
+    ppp=aaa.ExtraLogData()
     
-    print(LogData())
+    print(ppp._asdict())
