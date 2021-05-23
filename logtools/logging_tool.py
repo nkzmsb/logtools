@@ -248,31 +248,31 @@ if __name__ == "__main__":
     import time
     
     
-    aaa = Logger("AAA")
+    logger = Logger("AAA")
     
     logging.basicConfig(level=logging.DEBUG
-                        , format=aaa.logsetting.format
-                        , filename="temp/templog.log")
+                        , format=logger.logsetting.format
+                        , filename="temp/templog.log2")
     
     
     def demofunc():
-        aaa.debug("in demofunc", action = "run", values = {"i" : 6})
+        logger.debug("in demofunc", action = "run", values = {"i" : 6})
         
     class DemoClass():
         def __init__(self):
-            aaa.info("@DemoClass init")
+            logger.info("@DemoClass init")
             
         def demomethod(self):
-            aaa.warning("@DemoClass method")
+            logger.warning("@DemoClass method")
     
     dc = DemoClass()
     demofunc()
     for i in range(5):
-        aaa.debug("aaa", action = "run", values = {"i" : i})
-        aaa.info("bbb", action = "finised", values = {"i" : i})
-        aaa.warning("ccc", values = {"val" : 5, "i" : i})
-        aaa.error("ddd", values = {"val" : 15, "i" : i})
-        aaa.critical("eee", values = {"val" : -5, "i" : i})
+        logger.debug("aaa", action = "run", values = {"i" : i})
+        logger.info("bbb", action = "finised", values = {"i" : i})
+        logger.warning("ccc", values = {"val" : 5, "i" : i})
+        logger.error("ddd", values = {"val" : 15, "i" : i})
+        logger.critical("eee", values = {"val" : -5, "i" : i})
         time.sleep(1)
         
     dc.demomethod()

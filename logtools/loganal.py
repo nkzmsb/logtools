@@ -11,8 +11,8 @@ import warnings
 
 import pandas as pd
 
-# from logtools.default import default
-from logtools.logging_tool import Logger
+# from logtools.logging_tool import Logger
+from logging_tool import Logger
 
 logger = Logger()
 
@@ -255,9 +255,9 @@ class LogData():
     
     
 if __name__ == "__main__":
-    # print(pd.DataFrame(logfile_converter("loglog.log")))
+    renamefiles("temp", "templog")
     
-    ld = LogData(["temp/templog.log"])
-    pd = ld.log_df
+    logdata = LogData(["temp/templog_1.log", "temp/templog_2.log"])
+    log_df = logdata.log_df
     
-    print(pd)
+    print(log_df)
