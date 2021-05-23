@@ -113,9 +113,12 @@ class Logger():
               , function = None
               , tag = None
               , values = None):
-        ...
-        # logdata = ExtraLogData()
-        # self._logging(logdata, level, message)
+        
+        extralogdata = self._ExtraLogData(action = action
+                                          , function = get_funcname(2)
+                                          , tag = tag
+                                          , values = values)
+        self._logging(extralogdata, "debug", message)
         
     def info(self
              , message = None
@@ -194,16 +197,37 @@ class Logger():
         
         
     def _logging(self, extralogdata, level, message = None):
-        # ExtraLogDataの内容をロギングする
-        # どうやってレベル指定する？->気合で手動が現在有力
-        ...
-        # if level == "debug":
-        #     self.__logger.debug(msg = message
-        #                         , extra=dataclasses.asdict(extralogdata))
-        # elif level == "info":
-        #     self.__logger.info(msg = message
-        #                        , extra=dataclasses.asdict(extralogdata))
-        # elif ...
+        """ExtraLogDataの内容をロギングする
+
+        Parameters
+        ----------
+        extralogdata : self._ExtraLogData
+        level : str
+            ログレベル
+            debug, info, warning, error, critical
+        message : str, optional
+            message, by default None
+        """
+        
+        extralog_dic = dict(extralogdata._asdict())
+        if level == "debug":
+            self.__logger.debug(msg = message
+                                , extra = extralog_dic)
+        elif level == "info":
+            self.__logger.info(msg = message
+                               , extra = extralog_dic)
+        elif level == "warning":
+            self.__logger.warning(msg = message
+                                  , extra = extralog_dic)
+        elif level == "error":
+            self.__logger.error(msg = message
+                                , extra = extralog_dic)
+        elif level == "critical":
+            self.__logger.critical(msg = message
+                                   , extra = extralog_dic)
+        else:
+            self.__logger.warning(msg = "unexpected loglevel"
+                                  , extra = extralog_dic)
         
 
 class ConfigurationError(Exception):
@@ -212,7 +236,13 @@ class ConfigurationError(Exception):
     pass
     
 if __name__ == "__main__":
-    aaa = Logger("AAA")
-    ppp=aaa.ExtraLogData()
+    import logging
     
-    print(ppp._asdict())
+    
+    aaa = Logger("AAA")
+    
+    # f = logging.Formatter(aaa.logsetting.format)
+    logging.basicConfig(level=logging.DEBUG, format=aaa.logsetting.format)
+    
+    aaa.debug("aaa", action = "run")
+    

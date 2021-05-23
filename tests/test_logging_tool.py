@@ -1,5 +1,6 @@
 
 import pytest
+# from testfixtures import LogCapture
 
 from logtools.logging_tool import get_funcname, LoggingSetting, Logger
 
@@ -80,3 +81,9 @@ class TestLogger():
         
         expect = {key : None for key in ["action", "values", "exception", "function", "tag"]}
         assert dict(eld._asdict()) == expect
+        
+    
+    @pytest.mark.skip(reason="ログのテストの仕方を要確認")
+    def test_logging(self, capture):
+        ...
+    
