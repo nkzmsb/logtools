@@ -112,7 +112,6 @@ class Logger():
               , action = None
               , tag = None
               , values = None):
-        
         extralogdata = self._ExtraLogData(action = action
                                           , function = get_funcname(2)
                                           , tag = tag
@@ -124,25 +123,38 @@ class Logger():
              , action = None
              , tag = None
              , values = None):
-        ...
+        extralogdata = self._ExtraLogData(action = action
+                                          , function = get_funcname(2)
+                                          , tag = tag
+                                          , values = values)
+        self._logging(extralogdata, "info", message)
         
     def warning(self
                 , message = None
                 , exception = None
                 , values = None):
-        ...
+        extralogdata = self._ExtraLogData(exception = exception
+                                          , function = get_funcname(2)
+                                          , values = values)
+        self._logging(extralogdata, "warning", message)
         
     def error(self
               , message = None
               , exception = None
               , values = None):
-        ...
+        extralogdata = self._ExtraLogData(exception = exception
+                                          , function = get_funcname(2)
+                                          , values = values)
+        self._logging(extralogdata, "error", message)
         
     def critical(self
                  , message = None
                  , exception = None
                  , values = None):
-        ...
+        extralogdata = self._ExtraLogData(exception = exception
+                                          , function = get_funcname(2)
+                                          , values = values)
+        self._logging(extralogdata, "critical", message)
         
     def _get_args(self, func) -> set:
         # メソッド（関数）のパラメータを取得する
@@ -233,12 +245,35 @@ class ConfigurationError(Exception):
     
 if __name__ == "__main__":
     import logging
+    import time
     
     
     aaa = Logger("AAA")
     
-    # f = logging.Formatter(aaa.logsetting.format)
-    logging.basicConfig(level=logging.DEBUG, format=aaa.logsetting.format)
+    logging.basicConfig(level=logging.DEBUG
+                        , format=aaa.logsetting.format
+                        , filename="temp/templog.log")
     
-    aaa.debug("aaa", action = "run")
+    
+    def demofunc():
+        aaa.debug("in demofunc", action = "run", values = {"i" : 6})
+        
+    class DemoClass():
+        def __init__(self):
+            aaa.info("@DemoClass init")
+            
+        def demomethod(self):
+            aaa.warning("@DemoClass method")
+    
+    dc = DemoClass()
+    demofunc()
+    for i in range(5):
+        aaa.debug("aaa", action = "run", values = {"i" : i})
+        aaa.info("bbb", action = "finised", values = {"i" : i})
+        aaa.warning("ccc", values = {"val" : 5, "i" : i})
+        aaa.error("ddd", values = {"val" : 15, "i" : i})
+        aaa.critical("eee", values = {"val" : -5, "i" : i})
+        time.sleep(1)
+        
+    dc.demomethod()
     
