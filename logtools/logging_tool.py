@@ -110,7 +110,6 @@ class Logger():
     def debug(self
               , message = None
               , action = None
-              , function = None
               , tag = None
               , values = None):
         
@@ -123,7 +122,6 @@ class Logger():
     def info(self
              , message = None
              , action = None
-             , function = None
              , tag = None
              , values = None):
         ...
@@ -131,21 +129,18 @@ class Logger():
     def warning(self
                 , message = None
                 , exception = None
-                , function = None
                 , values = None):
         ...
         
     def error(self
               , message = None
               , exception = None
-              , function = None
               , values = None):
         ...
         
     def critical(self
                  , message = None
                  , exception = None
-                 , function = None
                  , values = None):
         ...
         
@@ -163,6 +158,7 @@ class Logger():
         attrib_set = attrib_set | self._get_args(self.warning)
         attrib_set = attrib_set | self._get_args(self.error)
         attrib_set = attrib_set | self._get_args(self.critical)
+        attrib_set = attrib_set | set(["function"]) # functionは引数では扱わない
         
         return attrib_set - set(["message"]) # messageは組み込み属性
     
