@@ -11,11 +11,14 @@ import warnings
 
 import pandas as pd
 
-from logtools.default import default
+# from logtools.default import default
+from logtools.logging_tool import Logger
 
-ATTRIBUTES = default()["attributes"]
-FORMATTER = default()["formatter"]
-SPLITTER = default()["splitter"]
+logger = Logger()
+
+ATTRIBUTES = logger.logsetting.attributes
+FORMATTER = logger.logsetting.format
+SPLITTER = logger.logsetting.splitter
 
 def keymake(k_str, head_str = None):
     if head_str:
@@ -254,7 +257,7 @@ class LogData():
 if __name__ == "__main__":
     # print(pd.DataFrame(logfile_converter("loglog.log")))
     
-    ld = LogData(["loglog.log"])
+    ld = LogData(["temp/templog.log"])
     pd = ld.log_df
     
-    print(pd[pd["convert_exception"]!="strange format"])
+    print(pd)
