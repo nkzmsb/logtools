@@ -103,17 +103,36 @@ class Logger():
     def name(self):
         return self.__name
         
-    def log_deco(self):
-        # トレース用ログ自動作成デコレータ
-        ...
+    def trace_deco(self,func):
+        """関数呼び出し前後のデバッグログ実装用デコレータ
+        
+        ログメッセージの内容はコンストラクタで変更可能
+        """
+        
+        def wrap(*args,**kwargs):
+            self.debug(action = "run"
+                       , function = func.__qualname__
+                       , tag = "trace")
+                
+            ret = func(*args, **kwargs)
+            
+            self.debug(action = "finished"
+                       , function = func.__qualname__
+                       , tag = "trace")
+            return ret
+        return wrap
         
     def debug(self
               , message = None
               , action = None
+              , function = None
               , tag = None
               , values = None):
+        
+        f = get_funcname(2) if function is None else function
+        
         extralogdata = self._ExtraLogData(action = action
-                                          , function = get_funcname(2)
+                                          , function = f
                                           , tag = tag
                                           , values = values)
         self._logging(extralogdata, "debug", message)
@@ -252,22 +271,24 @@ if __name__ == "__main__":
     
     logging.basicConfig(level=logging.DEBUG
                         , format=logger.logsetting.format
-                        , filename="temp/templog.log2")
+                        # , filename="temp/templog.log2"
+                        )
     
-    
+    @logger.trace_deco
     def demofunc():
         logger.debug("in demofunc", action = "run", values = {"i" : 6})
         
     class DemoClass():
         def __init__(self):
             logger.info("@DemoClass init")
-            
+        
+        @logger.trace_deco
         def demomethod(self):
             logger.warning("@DemoClass method")
     
     dc = DemoClass()
     demofunc()
-    for i in range(5):
+    for i in range(2):
         logger.debug("aaa", action = "run", values = {"i" : i})
         logger.info("bbb", action = "finised", values = {"i" : i})
         logger.warning("ccc", values = {"val" : 5, "i" : i})

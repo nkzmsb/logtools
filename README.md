@@ -92,7 +92,31 @@ foo.log# -> foo_#.log
 
 # SampleCode
 ## logging_toolモジュール
-...
+```python
+@logger.trace_deco
+def demofunc():
+    logger.debug("in demofunc", action = "run", values = {"i" : 6})
+        
+class DemoClass():
+    def __init__(self):
+        logger.info("@DemoClass init")
+        
+    @logger.trace_deco
+    def demomethod(self):
+        logger.warning("@DemoClass method")
+    
+dc = DemoClass()
+demofunc()
+for i in range(2):
+    logger.debug("aaa", action = "run", values = {"i" : i})
+    logger.info("bbb", action = "finised", values = {"i" : i})
+    logger.warning("ccc", values = {"val" : 5, "i" : i})
+    logger.error("ddd", values = {"val" : 15, "i" : i})
+    logger.critical("eee", values = {"val" : -5, "i" : i})
+    time.sleep(1)
+        
+dc.demomethod()
+```
 
 ## loganalモジュール
 ```python
