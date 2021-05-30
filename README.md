@@ -7,7 +7,7 @@
 ## pip
 
 ```
-$ pip install XXXXXX
+$ pip install --no-index --find-links=dist logtools
 ```
 
 **[Notice]**  
