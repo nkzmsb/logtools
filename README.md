@@ -23,30 +23,147 @@ $ pip install XXXXXX
 
 
 # How To Use
-## logging設定
-本パッケージを使用するかどうかにかかわらず、ロギングを行う際には、ロガーの設定を行う必要がある。
+## logging設定(main)
+本パッケージを使用するかどうかにかかわらず、ロギングを行う際には、メインモジュールでロガーの設定を行う必要がある。
 
-## Log属性について
+### 簡易設定
+jupyter等でファイル内で定義したロガーだけを使用すればよい場合には、以下のような簡易的な設定をする。
+```python
+import logging
+
+import logtools # このパッケージ
+
+logger = logtools.Logger(__name__)
+logger.logger.setLevel(logging.INFO)
+
+# create formatter
+formatter = logging.Formatter(logger.logsetting.format)
+# create console handler
+handler = logging.StreamHandler()
+# add formatter to handler
+handler.setFormatter(formatter)
+
+# add handler to logger
+logger.logger.addHandler(handler)
+```
+
+
+### 詳細設定
+アプリケーションコード等のログ設定は、以下のようにdictConfigを使用して設定する。
+dictConfigに渡す辞書は、yamlファイル等を読み込んだものを使用してもよい。
+(https://docs.python.org/ja/3/library/logging.config.html)
+
+```python
+import logging
+
+import logtools # このパッケージ
+
+logger = logtools.Logger(__name__)
+logger.logger.setLevel(logging.INFO)
+
+conf_dic = {"version" : 1
+            , "formatters" : {"default" : {"formatter" : logger.logsetting.format}}
+            , "handlers" : {"console" : {"class" : logging.StreamHandler
+            , "formatter" : "default"}}
+            , "loggers" : {"####" : {"level" : "DEBUG"
+                                    , "handlers" : ["console"]}
+                            , "$$$$": {"level" : "INFO"
+                                    , "handlers" : ["console"]}}}
+
+logging.config.dictConfig(conf_dic)
+```
+
+## ログ属性
+ログレベルごとにログする属性が制限されている。すべてのログレベルには"messages"と"values"が設けられており、これを用いることによって、ログ形式の統一性を保ちつつ、ログ内容の自由度を担保する。
+### debug
+- action : 処理のどのタイミングのログか。任意の文字列を指定できるが、ログの統一性を保つために、以下の３つの文字列を使用することを推奨する。
+    - "run" : 処理の開始時のログに使用する
+    - "finished" : 処理の終了時のログに使用する
+    - "check" : 処理の途中の確認用のログに使用する
+- function : ログが発生した関数の名前。指定しなければ自動的に追加されるため、普通はユーザーが指定する必要はない。
+- message : 任意の文字列。
+- tag : ロギングのフィルタやloganal.pyで解析する際のフィルタリングに使用するためのタグ。デフォルトはNone（引数を渡さない）。任意の文字列を指定できるが、ログの統一性を保つために、debugレベルでは以下の文字列を使用することを推奨する。
+    - "trace" : ログが呼ばれたことを追跡するためだけのログであることを示すタグ。
+- values : ログが呼ばれた時点の値を辞書型で格納する。
+
+### info
+- action : debugレベル参照
+- function : debugレベル参照
+- message : debugレベル参照
+- tag : ロギングのフィルタやloganal.pyで解析する際のフィルタリングに使用するためのタグ。デフォルトはNone（引数を渡さない）。任意の文字列を指定できるが、ログの統一性を保つために、infoレベルでは以下の文字列を使用することを推奨する。
+    - "use" : 積極的にvaluesの値を利用することを示すタグ。
+- values : debugレベル参照
+
+### warning
+- exception : 例外情報。具体的に何を入れるかはTBD。
+- message : debugレベル参照
+- values : debugレベル参照
+
+### error
+- exception : 例外情報。具体的に何を入れるかはTBD。
+- message : debugレベル参照
+- values : debugレベル参照
+
+### critical
+- exception : 例外情報。具体的に何を入れるかはTBD。
+- message : debugレベル参照
+- values : debugレベル参照
+
 
 
 ## logging_toolsの利用
 ### 基本的な利用方法
+以下のように、モジュールへログコードを仕込む。
+```python
+import loglools
 
+logger = loglools.Logger(__name__)
+
+logger.debug("aaa", action = "run", values = {"i" : 10})
+logger.info("bbb", action = "finised", values = {"i" : 10})
+logger.warning("ccc", values = {"val" : 5, "i" : 10})
+logger.error("ddd", values = {"val" : 15, "i" : 10})
+logger.critical("eee", values = {"val" : -5, "i" : 10})
+```
 
 ### トレースデコレータ
+関数やメソッドが呼ばれて、処理を終了したことを確認したい場合がある。
+その際にはtrace_decoデコレータを使用することで、DEBUGレベルのトレースログを自動生成することができる。
+```python
+@logger.trace_deco
+def demofunc():
+    ...
+    
+class DemoClass():
+    def __init__(self):
+        ...
+    
+    @logger.trace_deco
+    def demomethod(self):
+        ...
+```
 
 
 ### 制限事項
-#### クラスをそのままぶち込まない
-変なの入られるとloganalで困っちゃう。file出力やpickleを使って情報を一時保存し、ファイル名をログメッセージに入れるとか。
+#### ログの属性の制限
+loganal.pyでは、loggign_toolsを用いて生成したログレコードを、FileHandlerやhandlers.RotatingFileHandlerで出力したテキストファイルを使用する。  
+loganal.pyを正しく動作させるための要請として、ログの属性は以下のような制限を満たさなければならない。  
+基本的には、loganalは各行をast.literal_evalで評価することによる制限である。
+
+- 組み込み型以外の型を入力しない。numpy.ndarrayやpandas.DataFrame、あるいは自作したクラスなどをvaluesに渡したいことが考えられる。自然なのは、それらを組み込み型に変換することである。別の方法としては、file出力やpickleを使って情報を手動で出力し、そのファイル名をログメッセージに入れるという方法も考えられる。
+- 改行コードを含まないこと
+- 分離要のキー（デフォルトは"___"）を含まないこと
 
 
 ## loganalの利用
 ### rename
-
+...
 
 ### 利用方法
+...
 
+# Advanced info
+- logging_tool内のグローバル変数やコードを変更することで、ログの形式を変更することは可能。ただし、本パッケージの目的は、ログを規格化することなので、ユーザーが個々でこれらを編集することは非推奨。
 
 ---
 
@@ -182,3 +299,4 @@ log_df = logdata.log_df
 
 # 懸念点
 - ファイル出力されたログはテキストなので、情報がもとに戻るとは限らない。ログデータへの制限と、例外処理の検討が必要。
+- 元のloggerと似た感じにはなっているが、元のloggerの引数にtagなどの新しく付け加えたものはないのでエラーが出る。こういうものとしてあきらめるか、対策を考えてアップデートするか。
