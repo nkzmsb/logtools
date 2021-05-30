@@ -5,7 +5,7 @@
 
 # Install
 ## pip
-
+インストールしたい環境を立ち上げた状態で、distファイルを置いたディレクトリに移動したのち、以下コマンドを実行。
 ```
 $ pip install --no-index --find-links=dist logtools
 ```
@@ -19,7 +19,6 @@ $ pip install --no-index --find-links=dist logtools
 以下の環境をインストール時に手動で構築する必要がある。
 - python >= 3.7 : 辞書の並び情報とdataclassesを使用
 - pandas
-
 
 
 # How To Use
@@ -59,13 +58,12 @@ import logging
 import logtools # このパッケージ
 
 logger = logtools.Logger(__name__)
-logger.logger.setLevel(logging.INFO)
 
 conf_dic = {"version" : 1
-            , "formatters" : {"default" : {"formatter" : logger.logsetting.format}}
-            , "handlers" : {"console" : {"class" : logging.StreamHandler
+            , "formatters" : {"default" : {"format" : logger.logsetting.format}}
+            , "handlers" : {"console" : {"class" : "logging.StreamHandler"
             , "formatter" : "default"}}
-            , "loggers" : {"####" : {"level" : "DEBUG"
+            , "loggers" : {"__main__" : {"level" : "DEBUG"
                                     , "handlers" : ["console"]}
                             , "$$$$": {"level" : "INFO"
                                     , "handlers" : ["console"]}}}
@@ -165,11 +163,17 @@ loganal.pyを正しく動作させるための要請として、ログの属性�
 # Advanced info
 - logging_tool内のグローバル変数やコードを変更することで、ログの形式を変更することは可能。ただし、本パッケージの目的は、ログを規格化することなので、ユーザーが個々でこれらを編集することは非推奨。
 
+# ToDo/Issue
+- ファイル出力されたログはテキストなので、情報がもとに戻るとは限らない。ログデータへの制限と、例外処理の検討が必要。
+- 元のloggerと似た感じにはなっているが、元のloggerの引数にtagなどの新しく付け加えたものはないのでエラーが出る。こういうものとしてあきらめるか、対策を考えてアップデートするか。
+- splitterのデフォルト"\___"は変更した方がよい。理由は関数名やモジュール名に"\_\_main\__"とか、"\_func()"とかのアンダースコア始まり・終わりが想定される。この場合、loganalよろしくないと思われる。
+
+
+---
+=====ここから下は要整備情報  
+
 ---
 
-
-
-=========仕様===========
 # 概要
 ## 要求
 - ファイル出力されたlogをデータベース化(まずは簡易的にpandas.DataFrame)して、自由に情報をフィルタリングできるようにしたい
@@ -298,5 +302,3 @@ log_df = logdata.log_df
 
 
 # 懸念点
-- ファイル出力されたログはテキストなので、情報がもとに戻るとは限らない。ログデータへの制限と、例外処理の検討が必要。
-- 元のloggerと似た感じにはなっているが、元のloggerの引数にtagなどの新しく付け加えたものはないのでエラーが出る。こういうものとしてあきらめるか、対策を考えてアップデートするか。
