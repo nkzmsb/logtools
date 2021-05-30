@@ -3,12 +3,9 @@ import os
 import pytest
 
 from logtools.loganal import breakdown_values, expand_dict, keymake, log_to_dict, newlogfilename, renamefiles
-from logtools.default import default
+from logtools.logging_tool import Logger
 
-DEFAULT = default()
-ATTRIBUTES = DEFAULT["attributes"]
-# FORMATTER = DEFAULT["formatter"]
-# SPLITTER = DEFAULT["splitter"]
+ATTRIBUTES = Logger().logsetting.attributes
 
 
 @pytest.mark.parametrize("head, expect"

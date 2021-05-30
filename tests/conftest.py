@@ -5,9 +5,9 @@ import logging
 import pytest
 from testfixtures import LogCapture
 
-from logtools.default import default
+from logtools.logging_tool import Logger
 
-FORMATTER = default()["formatter"]
+FORMATTER = Logger().logsetting.format
 
 @pytest.fixture(scope="module")
 def valid_typ_log():
