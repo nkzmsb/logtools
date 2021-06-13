@@ -120,22 +120,22 @@ def test_newlogfilename():
     
 
 def test_renamefiles(tmpdir):
-    # 一時フォルダにlogdata.log, logdata.log2, logdata.log3, dummy.txtを準備する
-    # 処理後に、logdata_1.log, logdata_2.log, logdata_3.log, dummy.txtになっていることを確認する
+    # 一時フォルダにlogdata.log, logdata.log.1, logdata.log.2を準備する
+    # 処理後に、after_0.log, after_1.log, after_2.logになっていることを確認する
     
     f1 = tmpdir.join("abc.log")
-    f2 = tmpdir.join("abc.log2")
-    f3 = tmpdir.join("abc.log3")
+    f2 = tmpdir.join("abc.log.1")
+    f3 = tmpdir.join("abc.log.2")
     f1.write("I am f1")
     f2.write("I am f2")
     f3.write("I am f3")
     
-    ret = renamefiles(tmpdir, "kkk")
+    ret = renamefiles(tmpdir, "after")
     
     res = set([os.path.abspath(p) for p in tmpdir.listdir()])
-    expect = set([os.path.join(tmpdir, "kkk_1.log")
-                  , os.path.join(tmpdir, "kkk_2.log")
-                  , os.path.join(tmpdir, "kkk_3.log")])
+    expect = set([os.path.join(tmpdir, "after_0.log")
+                  , os.path.join(tmpdir, "after_1.log")
+                  , os.path.join(tmpdir, "after_2.log")])
     
     assert res == expect
     assert set(ret) == expect
