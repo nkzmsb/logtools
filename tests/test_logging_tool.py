@@ -27,14 +27,14 @@ class TestLoggingSetting():
     def setup_method(self,method):
         print('method={}'.format(method.__name__))
         self.logset = LoggingSetting(attributes=["A", "BBB", "Car"]
-                                  , splitter = "___")
+                                  , splitter = "===")
 
     def teardown_method(self, method):
         print('method={}'.format(method.__name__))
         del self.logset
         
     def test_post_ini(self):
-        assert self.logset.format == "%(A)s___%(BBB)s___%(Car)s"
+        assert self.logset.format == "%(A)s===%(BBB)s===%(Car)s"
         
 
 class TestLogger():
@@ -72,7 +72,7 @@ class TestLogger():
         attribs_tpl = tuple(["asctime", "levelname", "name", "function"
                              , "action", "exception", "message", "tag", "values"
                              ])
-        expect = LoggingSetting(attributes = attribs_tpl, splitter = "___")
+        expect = LoggingSetting(attributes = attribs_tpl, splitter = "===")
         assert self.logger._make_loggingsetting() == expect
         
         

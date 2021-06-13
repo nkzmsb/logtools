@@ -17,7 +17,7 @@ ATTRIBUTES = tuple(["asctime", "levelname", "name", "function"
                     ])
 
 # 各属性のスプリッター
-SPLITTER = "___"
+SPLITTER = "==="
 
 
 ##############################################

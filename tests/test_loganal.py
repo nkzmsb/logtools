@@ -158,4 +158,4 @@ class TestLogData():
 # ===参考
 # def test_AAA(dummylog_unit):
 #     avl_log = dummylog_unit["avl_log"]
-#     assert avl_log.read() == 'DEBUG___run___None___{A:"A"}'
+#     assert avl_log.read() == 'DEBUG===run===None==={A:"A"}'
