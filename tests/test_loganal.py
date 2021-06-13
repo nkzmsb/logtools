@@ -44,6 +44,9 @@ def test_breakdown_values():
               , "nest-BB-tag" : True}
     
     assert breakdown_values(values) == expect
+    
+def test_breakdown_values_none():    
+    assert breakdown_values("None") is None
 
 @pytest.mark.parametrize("values"
                          , [5
