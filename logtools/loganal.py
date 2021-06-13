@@ -247,7 +247,7 @@ class LogData():
         df_ls = []
         for path in logfilepath_ls:
             df_ls.append(pd.DataFrame(logfile_converter(path)))
-        self._log_df = pd.concat(df_ls)
+        self._log_df = pd.concat(df_ls, ignore_index=True)
         
     @property
     def log_df(self):
