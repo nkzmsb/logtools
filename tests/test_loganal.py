@@ -121,7 +121,7 @@ def test_newlogfilename():
 
 def test_renamefiles(tmpdir):
     # 一時フォルダにlogdata.log, logdata.log.1, logdata.log.2を準備する
-    # 処理後に、after_0.log, after_1.log, after_2.logになっていることを確認する
+    # 処理後に、after.log, after_1.log, after_2.logになっていることを確認する
     
     f1 = tmpdir.join("abc.log")
     f2 = tmpdir.join("abc.log.1")
@@ -133,7 +133,7 @@ def test_renamefiles(tmpdir):
     ret = renamefiles(tmpdir, "after")
     
     res = set([os.path.abspath(p) for p in tmpdir.listdir()])
-    expect = set([os.path.join(tmpdir, "after_0.log")
+    expect = set([os.path.join(tmpdir, "after.log")
                   , os.path.join(tmpdir, "after_1.log")
                   , os.path.join(tmpdir, "after_2.log")])
     
