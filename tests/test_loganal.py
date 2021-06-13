@@ -117,8 +117,8 @@ def test_logfile_converter():
 def test_newlogfilename():
     assert newlogfilename("abc.log.4", "opq") == "opq_4.log"
     assert newlogfilename("abc.log", "opq") == "opq_0.log"
-    assert newlogfilename("/bbb/abc.log.4", "opq") == "/bbb/opq_4.log"
-    assert newlogfilename("/bbb/abc.log", "opq") == "/bbb/opq_0.log"
+    assert newlogfilename("/bbb/abc.log.4", "opq") == "opq_4.log"
+    assert newlogfilename("/bbb/abc.log", "opq") == "opq_0.log"
     
 
 def test_renamefiles(tmpdir):
