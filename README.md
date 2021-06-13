@@ -53,7 +53,7 @@ dictConfigに渡す辞書は、yamlファイル等を読み込んだものを使
 (https://docs.python.org/ja/3/library/logging.config.html)
 
 ```python
-import logging
+import logging, logging.config
 
 import logtools # このパッケージ
 
@@ -62,11 +62,16 @@ logger = logtools.Logger(__name__)
 conf_dic = {"version" : 1
             , "formatters" : {"default" : {"format" : logger.logsetting.format}}
             , "handlers" : {"console" : {"class" : "logging.StreamHandler"
-            , "formatter" : "default"}}
+                                         , "formatter" : "default"}
+                            , "file" : {"class" : "logging.handlers.RotatingFileHandler"
+                                        , "formatter" : "default"
+                                        , "filename" : "logfolder/logfile"
+                                        , "maxBytes" : 1000
+                                        , "backupCount" : 3}}
             , "loggers" : {"__main__" : {"level" : "DEBUG"
-                                    , "handlers" : ["console"]}
-                            , "$$$$": {"level" : "INFO"
-                                    , "handlers" : ["console"]}}}
+                                    , "handlers" : ["console", "file"]}
+                           }
+            }
 
 logging.config.dictConfig(conf_dic)
 ```
@@ -168,23 +173,25 @@ loganal.pyを正しく動作させるための要請として、ログの属性�
 - ファイル出力されたログはテキストなので、情報がもとに戻るとは限らない。ログデータへの制限と、例外処理の検討が必要。
 - 元のloggerと似た感じにはなっているが、元のloggerの引数にtagなどの新しく付け加えたものはないのでエラーが出る。こういうものとしてあきらめるか、対策を考えてアップデートするか。
 - splitterのデフォルト"\___"は変更した方がよい。理由は関数名やモジュール名に"\_\_main\__"とか、"\_func()"とかのアンダースコア始まり・終わりが想定される。この場合、loganalよろしくないと思われる。"||"への変更を検討中。
+- loganal.renamefilesにファイル名のチェック機能を入れたほうが良い。
 
 
 ---
-=====ここから下は要整備情報  
-
----
-
-# 概要
+# 設計
+以下は設計情報
 ## 要求
+### 対応済
 - ファイル出力されたlogをデータベース化(まずは簡易的にpandas.DataFrame)して、自由に情報をフィルタリングできるようにしたい
 - トレース用のログを容易に発生させられるようにしたい
 - ログを発生させる箇所の関数やクラス名の情報をログに含めたい（funcNameでは不十分）
-- ロガーはlogger=logging.getLogger(#)で定義されるloggerと互換性を持つこと（このパッケージに不具合があっても、軽微な修正でデフォルトの機能でロギングが可能になるように）
 - filerotateで作成されたlogファイルは拡張子が変なことになる。解析時にはこれをrenameする。
-- ロガー側の処理では例外が発生しないこと（遮蔽すること）
 
-## 解決方法
+### 未対応
+- ロガーはlogger=logging.getLogger(#)で定義されるloggerと互換性を持つこと（このパッケージに不具合があっても、軽微な修正でデフォルトの機能でロギングが可能になるように）
+- 【動作未確認】ロガー側の処理では例外が発生しないこと（遮蔽すること）
+- 【動作未確認】スレッドセーフであること
+
+## 方針
 - 対象となるログに形式上の制限をかける。ロギング用のクラス・関数を作る。
 - 上記制限を満たしたlogをデータベース化するモジュールを作成する
 - トレース用のログをデコレータで発生させる
@@ -193,16 +200,6 @@ loganal.pyを正しく動作させるための要請として、ログの属性�
 - rename用の関数を作る
 - ロガー側の処理で例外の発生がないように実装
 
-## 機能
-- 形式上の制限に対応したログを発生させられるメソッドを準備。制限された属性はextra引数でログする。
-- ログをデータベース化する関数orクラス
-- トレース用のデコレータ
-- 呼び出し元の情報を取得する関数を作成（メソッドではない）
-- debug, info, warning, error, criticalログを発生させる同名のメソッド
-- rename関数
-- pytest(https://dev.classmethod.jp/articles/python_logcapture/)
-
-# 設計
 ## ログの制限
 ログは以下のようなフォーマットでファイル出力するものとする  
 '%(asctime)s___%(levelname)s___%(name)s___%(func)s___%(action)s___%(exception)s___%(message)s___%(tag)s___%(values)s'  
@@ -215,23 +212,24 @@ loganal.pyを正しく動作させるための要請として、ログの属性�
 -- tag : タグ。"trace"[debug任意], "use"[info任意]。
 -- values : 任意の辞書。[任意]
 - messageには文字列のみ
-- [ToDo]valuesに含めることができる型はTBD
+- valuesには辞書型
 
 ## パッケージ構成
 logtools  
 
 |-- logtools  
-|   |-- __init__.py  
+|   |-- \_\_init__.py  
 |   |-- logging_tool.py # ログを作成するモジュール  
 |   `-- loganal.py # ログを解析するモジュール  
 
 |-- tests  
-|   |-- __init__.py  
+|   |-- \_\_init__.py  
+|   |-- conftest.py  
 |   |-- test_logging_tool.py  
 |   `-- test_loganal.py  
 
 |-- setup.py  
-`-- readme.txt  
+`-- README.md  
 
 ## logging_toolモジュール
 ログを生成するモジュール。生成するログの形式はATTRIBUTESとSPLITTERで定義する。
