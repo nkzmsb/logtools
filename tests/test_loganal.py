@@ -46,7 +46,7 @@ def test_breakdown_values():
     assert breakdown_values(values) == expect
     
 def test_breakdown_values_none():    
-    assert breakdown_values("None") is None
+    assert breakdown_values("None") == None
 
 @pytest.mark.parametrize("values"
                          , [5

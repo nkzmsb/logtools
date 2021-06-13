@@ -111,6 +111,9 @@ def breakdown_values(values):
             remain_dic.update(still_rem_dic)
         
         res_dic = expanded_dic
+    
+    elif values_lit is None:
+        res_dic = None
         
     else:
         # Only dict is valid as type of values_lit
@@ -163,7 +166,8 @@ def log_to_dict(unitlog_str, attributes_tpl = ATTRIBUTES, splitter_str = SPLITTE
     
     # values属性の処理
     val_dic = breakdown_values(log_ls[-1])
-    ret_dic.update(val_dic)
+    if val_dic is not None:
+        ret_dic.update(val_dic)
     
     return ret_dic
 
