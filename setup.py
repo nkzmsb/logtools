@@ -7,6 +7,16 @@ from setuptools import setup, find_packages
 
 setup(
     name = "logtools"
-    , version = "0.0.3"
+    , version = "0.0.7"
     , packages = find_packages()
+    
+    , author = "nkzmsb"
+    , url = "https://github.com/nkzmsb/logtools"
+    
+    , description = "This is a wrapper for logging"
+    , long_descriptoin=open("README.md", encoding='utf-8').read()
+    , long_description_content_type = "text/markdown"
+    
+    , python_requires = ">=3.7"
+    
 )
