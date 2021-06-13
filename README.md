@@ -65,7 +65,7 @@ conf_dic = {"version" : 1
                                          , "formatter" : "default"}
                             , "file" : {"class" : "logging.handlers.RotatingFileHandler"
                                         , "formatter" : "default"
-                                        , "filename" : "logfolder/logfile"
+                                        , "filename" : "logfolder/logfile.log"
                                         , "maxBytes" : 1000
                                         , "backupCount" : 3}}
             , "loggers" : {"__main__" : {"level" : "DEBUG"
@@ -160,11 +160,31 @@ loganal.pyを正しく動作させるための要請として、ログの属性�
 
 
 ## loganalの利用
-### rename
-...
+### renamefiles
+logging.handlers.RotatingFileHandlerのbackupCount引数を指定して、ログファイルを生成した場合、複数のファイルが生成されるが、ファイル名の最後に".#"というファイル番号を示す文字列が付加されてしまう。
+これを"*_#.log"というファイル名に変更する。  
+【Note】RotatingFileHandlerのfilename引数には、"*.log"というファイル名を指定すること。（内部で".log"という文字列をキーにして解析するため）
 
 ### 利用方法
-...
+loganalの中で使用するのはrenamefiles関数と、LogDataクラスである。
+```python
+import glob
+import os
+
+import pandas as pd
+
+import logtools
+
+# ここではサンプルコードのためrenamefilesを解析用のプログラムに組み込んでいるが、
+# renamefilesは1度実行すれば十分なので、独立の処理とすべき
+logtools.renamefiles("./logfolder", "renamelog")
+
+logfile_ls = [os.path.abspath(path) for path in glob.glob("./logfolder/*.log")]
+
+data = logtools.LogData(logfile_ls)
+
+df = data.log_df
+```
 
 # Advanced info
 - logging_tool内のグローバル変数やコードを変更することで、ログの形式を変更することは可能。ただし、本パッケージの目的は、ログを規格化することなので、ユーザーが個々でこれらを編集することは非推奨。
@@ -256,48 +276,8 @@ logging_tool.Loggerでファイル出力されたログを分析するための�
 
 ### rename関数
 Filerotateで変な名前になっているファイルをリネームする。
-foo.log -> foo_1.log  
-foo.log2 -> foo_2.log  
-foo.log# -> foo_#.log  
+foo.log -> foo_0.log  
+foo.log.1 -> foo_1.log  
+foo.log.2 -> foo_#.log  
 [Notice]この関数の実行は１回のみ。複数回実施すると変なファイル名になる。
 
-
-# SampleCode
-## logging_toolモジュール
-```python
-@logger.trace_deco
-def demofunc():
-    logger.debug("in demofunc", action = "run", values = {"i" : 6})
-        
-class DemoClass():
-    def __init__(self):
-        logger.info("@DemoClass init")
-        
-    @logger.trace_deco
-    def demomethod(self):
-        logger.warning("@DemoClass method")
-    
-dc = DemoClass()
-demofunc()
-for i in range(2):
-    logger.debug("aaa", action = "run", values = {"i" : i})
-    logger.info("bbb", action = "finised", values = {"i" : i})
-    logger.warning("ccc", values = {"val" : 5, "i" : i})
-    logger.error("ddd", values = {"val" : 15, "i" : i})
-    logger.critical("eee", values = {"val" : -5, "i" : i})
-    time.sleep(1)
-        
-dc.demomethod()
-```
-
-## loganalモジュール
-```python
-from logtools import LogData, renamefiles
-
-renamefiles("temp", "templog")
-logdata = LogData(["temp/templog_1.log", "temp/templog_2.log"])
-log_df = logdata.log_df
-```
-
-
-# 懸念点
