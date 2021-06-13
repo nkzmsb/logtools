@@ -180,9 +180,9 @@ def logfile_converter(filepath)->list[dict]:
 def newlogfilename(prename, base):
     match = re.search(r'\.log.+', prename)
     if match:
-        num = match.group()[4:]
+        num = match.group()[5:]
     else:
-        num = "1"
+        num = "0"
     
     return base + "_" + num + ".log"
         
@@ -190,7 +190,7 @@ def newlogfilename(prename, base):
 def renamefiles(dirpath, base):
     """RotatingFileHandlerで作成されたlogファイル名を修正する
     
-    dirpathディレクトリ内の"*.log#"という名前のファイルを
+    dirpathディレクトリ内の"*.log.#"という名前のファイルを
     "[base]_#.log"という名前に変更する。
     *は任意の文字列、#は番号（任意の文字列でも動作）
 
@@ -215,7 +215,7 @@ def renamefiles(dirpath, base):
     filepath_ls = glob.glob(os.path.join(os.path.abspath(dirpath),"*"))
     filename_ls = [os.path.basename(p) for p in filepath_ls]
     
-    change_ls = [] #(変更前, 変更後)のタプルのリスト
+    change_ls = [] #(変更前(パス名), 変更後(単独ファイル名))のタプルのリスト
     for f in filename_ls:
         match = re.match(r'.*\.log.*', f)
         if match:
