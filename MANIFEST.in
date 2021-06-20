@@ -1,2 +1,6 @@
-include LICENSE
+
 include *.md
+include LICENSE
+include setup.py
+
+graft tests/

@@ -10,9 +10,16 @@
 $ pip install --no-index --find-links=dist logtools
 ```
 
-**[Notice]**  
+**Notice**  
 本パッケージはpipでインストールされることを想定しており、また、conda環境で使用されることも想定している。このインストーラにrequirements情報を含むと、自動的にインストールされたライブラリがconda環境と競合する恐れがある。したがって、本パッケージのインストーラにはrequirements情報は含んでいない。  
-**ユーザーはインストールの際に、以下のrequirementの項を参考に手動で環境を構築する必要がある。**
+**ユーザーはインストールの際に、以下のrequirementの項を参考に手動で環境を構築する必要がある。**  
+
+**issue**  
+tar.gzファイルにはこのREADMEも含めて、データファイルが含まれているが、上記コマンドで実行しても、データファイルはsite-packages/logtoolsには展開されない。  
+tar.gzはwindowsであってもpowershellを使えば以下コマンドでその場に解凍できる。（pathがターゲットのtar.gzに通っていることと、tar.gzの名前は適宜変更すること）  
+```
+$ tar -xzvf .\logtools-0.0.11.tar.gz
+```
 
 
 ## requiraments
