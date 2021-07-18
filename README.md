@@ -166,6 +166,41 @@ loganal.pyを正しく動作させるための要請として、ログの属性�
 - 分離要のキー（デフォルトは"==="）を含まないこと
 
 
+### Tips
+#### numpy.ndarrayのリスト化
+nympy.ndarrayはtolistメソッドによってリスト化することができる。
+```
+some_ndarray=np.array([[1,2,3], [1,1,1]])
+logger.debug("how to log ndarray", action = "info", values = {"example" : some_ndarray.tolist()})
+```
+
+#### errorのログ
+引数のexceptionにはエラーの種類が、meesageにはエラーメッセージが格納されることが望ましい。  
+```
+try:
+    1/0
+except ZeroDivisionError as zde:
+    logger.error(exception = zde.__class__.__name__    # >>> "ZeroDivisionError"
+                 , message = zde    # >>> "division by zero"
+                 )
+```
+
+#### warningのログ
+引数のexceptionには警告の種類が、meesageには警告メッセージが格納されることが望ましい。  
+```
+import warning
+
+with warnings.catch_warnings(record=True) as wa:
+    # これだとログしないと警告が隠蔽されてしまうのが問題
+    warnings.warn("This is a warning example", FutureWarning)
+
+for w in wa:
+    logging.warning(exception = w.message.__class__.__name__    # >>> "FutureWarning"
+                    , message = w.message    # "This is a warning example"
+                    )
+```
+
+
 ## loganalの利用
 ### renamefiles
 logging.handlers.RotatingFileHandlerのbackupCount引数を指定して、ログファイルを生成した場合、複数のファイルが生成されるが、ファイル名の最後に".#"というファイル番号を示す文字列が付加されてしまう。
