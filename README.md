@@ -166,6 +166,41 @@ loganal.pyを正しく動作させるための要請として、ログの属性�
 - 分離要のキー（デフォルトは"==="）を含まないこと
 
 
+### Tips
+#### numpy.ndarrayのリスト化
+nympy.ndarrayはtolistメソッドによってリスト化することができる。
+```
+some_ndarray=np.array([[1,2,3], [1,1,1]])
+logger.debug("how to log ndarray", action = "info", values = {"example" : some_ndarray.tolist()})
+```
+
+#### errorのログ
+引数のexceptionにはエラーの種類が、meesageにはエラーメッセージが格納されることが望ましい。  
+```
+try:
+    1/0
+except ZeroDivisionError as zde:
+    logger.error(exception = zde.__class__.__name__    # >>> "ZeroDivisionError"
+                 , message = zde    # >>> "division by zero"
+                 )
+```
+
+#### warningのログ
+引数のexceptionには警告の種類が、meesageには警告メッセージが格納されることが望ましい。  
+```
+import warning
+
+with warnings.catch_warnings(record=True) as wa:
+    # これだとログしないと警告が隠蔽されてしまうのが問題
+    warnings.warn("This is a warning example", FutureWarning)
+
+for w in wa:
+    logging.warning(exception = w.message.__class__.__name__    # >>> "FutureWarning"
+                    , message = w.message    # "This is a warning example"
+                    )
+```
+
+
 ## loganalの利用
 ### renamefiles
 logging.handlers.RotatingFileHandlerのbackupCount引数を指定して、ログファイルを生成した場合、複数のファイルが生成されるが、ファイル名の最後に".#"というファイル番号を示す文字列が付加されてしまう。
@@ -197,6 +232,7 @@ df = data.log_df
 - logging_tool内のグローバル変数やコードを変更することで、ログの形式を変更することは可能。ただし、本パッケージの目的は、ログを規格化することなので、ユーザーが個々でこれらを編集することは非推奨。
 
 # ToDo/Issue
+- ロギングの属性はある程度変更できるようにしておいたほうが良い(組み込み属性の追加・削除)。例えば"threadName"はマルチスレッドのアプリだとが欲しいが、それ以外だと不要。この辺りまでは柔軟に対応できるようにしたい。
 - ファイル出力されたログはテキストなので、情報がもとに戻るとは限らない。ログデータへの制限と、例外処理の検討が必要。
 - 元のloggerと似た感じにはなっているが、元のloggerの引数にtagなどの新しく付け加えたものはないのでエラーが出る。こういうものとしてあきらめるか、対策を考えてアップデートするか。
 - loganal.renamefilesにファイル名のチェック機能を入れたほうが良い。
