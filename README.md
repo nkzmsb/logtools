@@ -106,18 +106,18 @@ logging.config.dictConfig(conf_dic)
 - values : debugレベル参照
 
 ### warning
-- exception : 例外情報。具体的に何を入れるかはTBD。
-- message : debugレベル参照
+- exception : 例外クラス名。
+- message : 例外メッセージ。
 - values : debugレベル参照
 
 ### error
-- exception : 例外情報。具体的に何を入れるかはTBD。
-- message : debugレベル参照
+- exception : 例外クラス名。
+- message : 例外メッセージ。
 - values : debugレベル参照
 
 ### critical
-- exception : 例外情報。具体的に何を入れるかはTBD。
-- message : debugレベル参照
+- exception : 例外クラス名。
+- message : 例外メッセージ。
 - values : debugレベル参照
 
 
@@ -239,7 +239,6 @@ df = data.log_df
 - パッケージングのベストプラクティスを確認
 - logがハンドリングされる順番がlogイベントが発生した順番とは限らない。loganal.LogDataでは時間順にDataFrameをソートしてあげるほうが親切かも。
 - jupyter等で使う際の設定部分のボイラーコード、どうにかならないか要検討。
-- log属性の推奨値をdocstringに記載して、参照できるようにするべき。
 
 
 ---
