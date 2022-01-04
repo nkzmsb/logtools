@@ -128,6 +128,33 @@ class Logger():
               , function = None
               , tag = None
               , values = None):
+        """debug level
+
+        Parameters
+        ----------
+        message : str, optional
+            arbitrary string
+            , by default None
+        action : str, optional
+            one of the following is recommended
+            - "run" : start of the processing
+            - "finished" : end of the processing
+            - "check" : for check
+            - "ready" : the processing goes to standby
+            , by default None
+        function : str, optional
+            function name
+            automatically completed if not specified
+            , by default None
+        tag : [type], optional
+            the following or None is recomended
+            - "trace" : only for trace
+            , by default None
+        values : dict, optional
+            arbitrary dictionary
+            its values must be parseable
+            , by default None
+        """
         
         f = get_funcname(2) if function is None else function
         
@@ -142,6 +169,34 @@ class Logger():
              , action = None
              , tag = None
              , values = None):
+        """info level
+
+        Parameters
+        ----------
+        message : str, optional
+            arbitrary string
+            , by default None
+        action : str, optional
+            one of the following is recommended
+            - "run" : start of the processing
+            - "finished" : end of the processing
+            - "check" : for check
+            - "ready" : the processing goes to standby
+            , by default None
+        function : str, optional
+            function name
+            automatically completed if not specified
+            , by default None
+        tag : [type], optional
+            the following or None is recomended
+            - "use" : be actively used
+            , by default None
+        values : dict, optional
+            arbitrary dictionary
+            its values must be parseable
+            , by default None
+        """
+        
         extralogdata = self._ExtraLogData(action = action
                                           , function = get_funcname(2)
                                           , tag = tag
@@ -152,6 +207,23 @@ class Logger():
                 , message = None
                 , exception = None
                 , values = None):
+        """warning level
+
+        Parameters
+        ----------
+        message : str, optional
+            arbitrary string
+            exception message is recommended
+            , by default None
+        exception : str, optional
+            exception class name
+            , by default None
+        values : dict, optional
+            arbitrary dictionary
+            its values must be parseable
+            , by default None
+        """
+        
         extralogdata = self._ExtraLogData(exception = exception
                                           , function = get_funcname(2)
                                           , values = values)
@@ -161,6 +233,22 @@ class Logger():
               , message = None
               , exception = None
               , values = None):
+        """error level
+
+        Parameters
+        ----------
+        message : str, optional
+            arbitrary string
+            exception message is recommended
+            , by default None
+        exception : str, optional
+            exception class name
+            , by default None
+        values : dict, optional
+            arbitrary dictionary
+            its values must be parseable
+            , by default None
+        """
         extralogdata = self._ExtraLogData(exception = exception
                                           , function = get_funcname(2)
                                           , values = values)
@@ -170,6 +258,22 @@ class Logger():
                  , message = None
                  , exception = None
                  , values = None):
+        """critical level
+
+        Parameters
+        ----------
+        message : str, optional
+            arbitrary string
+            exception message is recommended
+            , by default None
+        exception : str, optional
+            exception class name
+            , by default None
+        values : dict, optional
+            arbitrary dictionary
+            its values must be parseable
+            , by default None
+        """
         extralogdata = self._ExtraLogData(exception = exception
                                           , function = get_funcname(2)
                                           , values = values)
