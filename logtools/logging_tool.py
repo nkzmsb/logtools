@@ -150,6 +150,7 @@ class Logger():
         message : str, optional
             arbitrary string
             , by default None
+            
         action : str, optional
             one of the following is recommended
             - "run" : start of the processing
@@ -157,14 +158,17 @@ class Logger():
             - "check" : for check
             - "ready" : the processing goes to standby
             , by default None
+            
         function : str, optional
             function name
             automatically completed if not specified
             , by default None
+            
         tag : [type], optional
             the following or None is recomended
             - "trace" : only for trace
             , by default None
+            
         values : dict, optional
             arbitrary dictionary
             its values must be parseable
@@ -191,6 +195,7 @@ class Logger():
         message : str, optional
             arbitrary string
             , by default None
+            
         action : str, optional
             one of the following is recommended
             - "run" : start of the processing
@@ -198,14 +203,17 @@ class Logger():
             - "check" : for check
             - "ready" : the processing goes to standby
             , by default None
+            
         function : str, optional
             function name
             automatically completed if not specified
             , by default None
+            
         tag : [type], optional
             the following or None is recomended
             - "use" : be actively used
             , by default None
+            
         values : dict, optional
             arbitrary dictionary
             its values must be parseable
@@ -230,9 +238,11 @@ class Logger():
             arbitrary string
             exception message is recommended
             , by default None
+            
         exception : str, optional
             exception class name
             , by default None
+            
         values : dict, optional
             arbitrary dictionary
             its values must be parseable
@@ -256,9 +266,11 @@ class Logger():
             arbitrary string
             exception message is recommended
             , by default None
+            
         exception : str, optional
             exception class name
             , by default None
+            
         values : dict, optional
             arbitrary dictionary
             its values must be parseable
@@ -281,9 +293,11 @@ class Logger():
             arbitrary string
             exception message is recommended
             , by default None
+            
         exception : str, optional
             exception class name
             , by default None
+            
         values : dict, optional
             arbitrary dictionary
             its values must be parseable
