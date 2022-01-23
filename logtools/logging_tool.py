@@ -313,6 +313,18 @@ class Logger():
         
     def addHandler(self, hdlr):
         self.__logger.addHandler(hdlr)
+    
+    def add_StreamHandler(self):
+        """add StreamHandler with default format
+        
+        Notes
+        -----
+        - Jupyter等で使うときにgetLoggerした後にこれを呼び出すだけで使える
+        """
+        formatter = logging.Formatter(self.logsetting.format)
+        hdlr = logging.StreamHandler()
+        hdlr.setFormatter(formatter)
+        self.addHandler(hdlr)
         
     def _get_args(self, func) -> set:
         # メソッド（関数）のパラメータを取得する
