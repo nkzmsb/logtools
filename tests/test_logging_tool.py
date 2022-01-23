@@ -2,7 +2,7 @@
 import pytest
 # from testfixtures import LogCapture
 
-from logtools.logging_tool import get_funcname, LoggingSetting, Logger
+from logtools.logging_tool import get_funcname, LoggingSetting, getLogger
 
 def test_get_funcname_at_func():
     def callingfunc():
@@ -40,7 +40,7 @@ class TestLoggingSetting():
 class TestLogger():
     def setup_method(self,method):
         print('method={}'.format(method.__name__))
-        self.logger = Logger("testlogger")
+        self.logger = getLogger("testlogger")
 
     def teardown_method(self, method):
         print('method={}'.format(method.__name__))

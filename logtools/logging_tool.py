@@ -5,6 +5,7 @@ import logging
 import inspect
 from inspect import signature
 from typing import Tuple
+import warnings
 
 
 ##############################################
@@ -70,7 +71,17 @@ def get_funcname(layer:int = 1)->str:
         return function_name
 
 
+def getLogger(name):
+    return Logger(name)
+
 class Logger():
+    """
+    Notes
+    -----
+    For better compatibility with python standard Logger, 
+    it is highly recommended to use getLogger() in this module 
+    for instantiation of this class.
+    """
     def __init__(self, name=None):
         """
 
@@ -97,10 +108,14 @@ class Logger():
         
     @property
     def logger(self):
+        warnings.warn(message = "logtools.Logger.logger property will be deprecated"
+                      , category=PendingDeprecationWarning)
         return self.__logger
     
     @property
     def name(self):
+        warnings.warn(message = "logtools.Logger.name property will be deprecated"
+                      , category=PendingDeprecationWarning)
         return self.__name
         
     def trace_deco(self,func):
@@ -278,6 +293,12 @@ class Logger():
                                           , function = get_funcname(2)
                                           , values = values)
         self._logging(extralogdata, "critical", message)
+    
+    def setLevel(self, level):
+        self.__logger.setLevel(level)
+        
+    def addHandler(self, hdlr):
+        self.__logger.addHandler(hdlr)
         
     def _get_args(self, func) -> set:
         # メソッド（関数）のパラメータを取得する
