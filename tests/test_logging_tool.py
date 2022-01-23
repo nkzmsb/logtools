@@ -1,8 +1,10 @@
 
+import logging
+
 import pytest
 # from testfixtures import LogCapture
 
-from logtools.logging_tool import get_funcname, LoggingSetting, Logger
+from logtools.logging_tool import get_funcname, LoggingSetting, getLogger
 
 def test_get_funcname_at_func():
     def callingfunc():
@@ -40,7 +42,7 @@ class TestLoggingSetting():
 class TestLogger():
     def setup_method(self,method):
         print('method={}'.format(method.__name__))
-        self.logger = Logger("testlogger")
+        self.logger = getLogger("testlogger")
 
     def teardown_method(self, method):
         print('method={}'.format(method.__name__))
@@ -81,7 +83,14 @@ class TestLogger():
         
         expect = {key : None for key in ["action", "values", "exception", "function", "tag"]}
         assert dict(eld._asdict()) == expect
+    
+    def test_add_StreamHandler(self):
+        self.logger.add_StreamHandler()
+        added_handler=self.logger._Logger__logger.handlers[-1] # __loggerにアクセスするためには、_Logger__loggerとする必要がある
         
+        assert isinstance(added_handler, logging.StreamHandler)
+        
+        assert added_handler.formatter._fmt == "%(asctime)s===%(levelname)s===%(name)s===%(function)s===%(action)s===%(exception)s===%(message)s===%(tag)s===%(values)s"
     
     @pytest.mark.skip(reason="ログのテストの仕方を要確認")
     def test_logging(self, capture):

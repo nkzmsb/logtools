@@ -5,6 +5,7 @@ import logging
 import inspect
 from inspect import signature
 from typing import Tuple
+import warnings
 
 
 ##############################################
@@ -70,7 +71,17 @@ def get_funcname(layer:int = 1)->str:
         return function_name
 
 
+def getLogger(name):
+    return Logger(name)
+
 class Logger():
+    """
+    Notes
+    -----
+    For better compatibility with python standard Logger, 
+    it is highly recommended to use getLogger() in this module 
+    for instantiation of this class.
+    """
     def __init__(self, name=None):
         """
 
@@ -97,10 +108,14 @@ class Logger():
         
     @property
     def logger(self):
+        warnings.warn(message = "logtools.Logger.logger property will be deprecated"
+                      , category=PendingDeprecationWarning)
         return self.__logger
     
     @property
     def name(self):
+        warnings.warn(message = "logtools.Logger.name property will be deprecated"
+                      , category=PendingDeprecationWarning)
         return self.__name
         
     def trace_deco(self,func):
@@ -135,6 +150,7 @@ class Logger():
         message : str, optional
             arbitrary string
             , by default None
+            
         action : str, optional
             one of the following is recommended
             - "run" : start of the processing
@@ -142,14 +158,17 @@ class Logger():
             - "check" : for check
             - "ready" : the processing goes to standby
             , by default None
+            
         function : str, optional
             function name
             automatically completed if not specified
             , by default None
+            
         tag : [type], optional
             the following or None is recomended
             - "trace" : only for trace
             , by default None
+            
         values : dict, optional
             arbitrary dictionary
             its values must be parseable
@@ -176,6 +195,7 @@ class Logger():
         message : str, optional
             arbitrary string
             , by default None
+            
         action : str, optional
             one of the following is recommended
             - "run" : start of the processing
@@ -183,14 +203,17 @@ class Logger():
             - "check" : for check
             - "ready" : the processing goes to standby
             , by default None
+            
         function : str, optional
             function name
             automatically completed if not specified
             , by default None
+            
         tag : [type], optional
             the following or None is recomended
             - "use" : be actively used
             , by default None
+            
         values : dict, optional
             arbitrary dictionary
             its values must be parseable
@@ -215,9 +238,11 @@ class Logger():
             arbitrary string
             exception message is recommended
             , by default None
+            
         exception : str, optional
             exception class name
             , by default None
+            
         values : dict, optional
             arbitrary dictionary
             its values must be parseable
@@ -241,9 +266,11 @@ class Logger():
             arbitrary string
             exception message is recommended
             , by default None
+            
         exception : str, optional
             exception class name
             , by default None
+            
         values : dict, optional
             arbitrary dictionary
             its values must be parseable
@@ -266,9 +293,11 @@ class Logger():
             arbitrary string
             exception message is recommended
             , by default None
+            
         exception : str, optional
             exception class name
             , by default None
+            
         values : dict, optional
             arbitrary dictionary
             its values must be parseable
@@ -278,6 +307,24 @@ class Logger():
                                           , function = get_funcname(2)
                                           , values = values)
         self._logging(extralogdata, "critical", message)
+    
+    def setLevel(self, level):
+        self.__logger.setLevel(level)
+        
+    def addHandler(self, hdlr):
+        self.__logger.addHandler(hdlr)
+    
+    def add_StreamHandler(self):
+        """add StreamHandler with default format
+        
+        Notes
+        -----
+        - Jupyter等で使うときにgetLoggerした後にこれを呼び出すだけで使える
+        """
+        formatter = logging.Formatter(self.logsetting.format)
+        hdlr = logging.StreamHandler()
+        hdlr.setFormatter(formatter)
+        self.addHandler(hdlr)
         
     def _get_args(self, func) -> set:
         # メソッド（関数）のパラメータを取得する
