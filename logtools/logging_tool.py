@@ -106,13 +106,13 @@ class Logger():
             self.__logger.addHandler(logging.NullHandler())
         else:
             self.__logger = None
-        
-        self.extra_attribs = _get_extra_attribs(self)    
+            
         self.logsetting = self._make_loggingsetting()
         
         # extra引数でログする内容のコンテナ
-        self._ExtraLogData = namedtuple("ExtraLogData", self.extra_attribs
-                                        , defaults = [None for _ in range(len(self.extra_attribs))])
+        extra_attribs = _get_extra_attribs(self)
+        self._ExtraLogData = namedtuple("ExtraLogData", extra_attribs
+                                        , defaults = [None for _ in range(len(extra_attribs))])
             
         
     @property
