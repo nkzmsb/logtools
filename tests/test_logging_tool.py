@@ -1,10 +1,12 @@
 
 import logging
+from ssl import ALERT_DESCRIPTION_BAD_RECORD_MAC
 
 import pytest
 # from testfixtures import LogCapture
 
 from logtools.logging_tool import get_funcname, LoggingSetting, getLogger
+from logtools.logging_tool import _get_args
 
 def test_get_funcname_at_func():
     def callingfunc():
@@ -50,10 +52,6 @@ class TestLogger():
         
     def test_name_prop(self):
         assert self.logger.name == "testlogger"
-        
-    def test_get_args(self):
-        expect_debug = set(["message", "action", "tag", "values", "function"])
-        assert self.logger._get_args(self.logger.debug) == expect_debug
     
     def test_get_extra_attribs(self):
         expect = set(['values', 'tag', 'function', 'exception', 'action'])
@@ -96,3 +94,16 @@ class TestLogger():
     def test_logging(self, capture):
         ...
     
+def test_get_args():
+    def target(message, action, tag="aaa", values=False):
+        return None
+    expect = set(["message", "action", "tag", "values"])
+    assert _get_args(target) == expect
+    
+    class Bar():
+        def __init__(self, foo):
+            self.foo = foo
+        def target(self, message, action, tag="aaa", values=False):
+            return None
+    bar = Bar("foo")
+    assert _get_args(bar.target) == expect
