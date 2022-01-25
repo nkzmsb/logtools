@@ -6,7 +6,7 @@ import pytest
 # from testfixtures import LogCapture
 
 from logtools.logging_tool import get_funcname, LoggingSetting, getLogger
-from logtools.logging_tool import _get_args
+from logtools.logging_tool import _get_args, _get_extra_attribs
 
 def test_get_funcname_at_func():
     def callingfunc():
@@ -52,10 +52,6 @@ class TestLogger():
         
     def test_name_prop(self):
         assert self.logger.name == "testlogger"
-    
-    def test_get_extra_attribs(self):
-        expect = set(['values', 'tag', 'function', 'exception', 'action'])
-        assert self.logger._get_extra_attribs() == expect
     
     @pytest.mark.parametrize("attrib, expect"
                              , [(['values', 'tag', 'function', 'exception', 'action']
@@ -107,3 +103,9 @@ def test_get_args():
             return None
     bar = Bar("foo")
     assert _get_args(bar.target) == expect
+    
+def test_get_extra_attribs():
+    expect = set(['values', 'tag', 'function', 'exception', 'action'])
+    tar = getLogger("target_dummy")
+    
+    assert _get_extra_attribs(tar) == expect

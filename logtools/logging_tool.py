@@ -98,7 +98,7 @@ class Logger():
         else:
             self.__logger = None
         
-        self.extra_attribs = self._get_extra_attribs()    
+        self.extra_attribs = _get_extra_attribs(self)    
         self.logsetting = self._make_loggingsetting()
         
         # extra引数でログする内容のコンテナ
@@ -326,20 +326,6 @@ class Logger():
         hdlr.setFormatter(formatter)
         self.addHandler(hdlr)
     
-    def _get_extra_attribs(self) -> set:
-        """組み込みではないログ属性のsetを取得する
-        
-        ログメソッドのパラメータを重複なく取得する
-        """
-        attrib_set = _get_args(self.debug)
-        attrib_set = attrib_set | _get_args(self.info)
-        attrib_set = attrib_set | _get_args(self.warning)
-        attrib_set = attrib_set | _get_args(self.error)
-        attrib_set = attrib_set | _get_args(self.critical)
-        attrib_set = attrib_set | set(["function"]) # functionは引数では扱わない
-        
-        return attrib_set - set(["message"]) # messageは組み込み属性
-    
     def _is_attribs_available(self, extra_attrib_set) -> bool:
         """ATTRIBUTESが実現できるのかどうかを確認
         
@@ -407,7 +393,19 @@ def _get_args(func) -> set:
     # メソッド（関数）のパラメータを取得する
     return set(signature(func).parameters.keys())
 
-
+def _get_extra_attribs(logger : Logger) -> set:
+    """組み込みではないログ属性のsetを取得する
+    
+    ログメソッドのパラメータを重複なく取得する
+    """
+    attrib_set = _get_args(logger.debug)
+    attrib_set = attrib_set | _get_args(logger.info)
+    attrib_set = attrib_set | _get_args(logger.warning)
+    attrib_set = attrib_set | _get_args(logger.error)
+    attrib_set = attrib_set | _get_args(logger.critical)
+    attrib_set = attrib_set | set(["function"]) # functionは引数では扱わない
+    
+    return attrib_set - set(["message"]) # messageは組み込み属性
 
 
 
