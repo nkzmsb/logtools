@@ -5,7 +5,7 @@ from ssl import ALERT_DESCRIPTION_BAD_RECORD_MAC
 import pytest
 # from testfixtures import LogCapture
 
-from logtools.logging_tool import get_funcname, LoggingSetting, getLogger
+from logtools.logging_tool import get_funcname, LoggingSetting, getLogger, Logger
 from logtools.logging_tool import _get_args, _get_extra_attribs, _is_attribs_available
 
 def test_get_funcname_at_func():
@@ -78,7 +78,12 @@ class TestLogger():
     @pytest.mark.skip(reason="ログのテストの仕方を要確認")
     def test_logging(self, capture):
         ...
-    
+
+def test_Logger_class_variable():
+    assert Logger._attributes == tuple(["asctime", "levelname", "name", "function"
+                                        , "action", "exception", "message", "tag", "values"])
+    assert Logger._splitter == "==="
+
 def test_get_args():
     def target(message, action, tag="aaa", values=False):
         return None
