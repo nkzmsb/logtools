@@ -326,30 +326,8 @@ class Logger():
         hdlr.setFormatter(formatter)
         self.addHandler(hdlr)
     
-    def _is_attribs_available(self, extra_attrib_set) -> bool:
-        """ATTRIBUTESが実現できるのかどうかを確認
-        
-        Note
-        ----------
-        - extra_attrib_setにATTRIBUTESに含まれない属性が含まれていたとしても
-          ログ自体は正常に動作するのでTrueを返す
-
-        Parameters
-        ----------
-        extra_attrib_set : set of str
-            組み込みではないログ属性
-        """
-        # ATTRIBUTESが実現できるのかどうかを確認
-        if not(extra_attrib_set.isdisjoint(set(ATTRIBUTE_BUILT_IN_ALL))):
-            # extra_attrib_setが組み込みとかぶっていないこと
-            return False
-        
-        # ATTRIBUTESの要素がすべてログ情報に含まれること
-        all_attrib = extra_attrib_set | set(ATTRIBUTE_BUILT_IN_ALL)
-        return set(ATTRIBUTES).issubset(all_attrib)
-    
     def _make_loggingsetting(self) -> LoggingSetting:
-        if self._is_attribs_available(self.extra_attribs):
+        if _is_attribs_available(self.extra_attribs):
             return LoggingSetting(ATTRIBUTES, SPLITTER)
         else:
             raise ConfigurationError
@@ -407,8 +385,26 @@ def _get_extra_attribs(logger : Logger) -> set:
     
     return attrib_set - set(["message"]) # messageは組み込み属性
 
-
-
+def _is_attribs_available(extra_attrib_set) -> bool:
+    """ATTRIBUTESが実現できるのかどうかを確認
+    
+    Note
+    ----------
+    - extra_attrib_setにATTRIBUTESに含まれない属性が含まれていたとしても
+      ログ自体は正常に動作するのでTrueを返す
+    Parameters
+    ----------
+    extra_attrib_set : set of str
+        組み込みではないログ属性
+    """
+    # ATTRIBUTESが実現できるのかどうかを確認
+    if not(extra_attrib_set.isdisjoint(set(ATTRIBUTE_BUILT_IN_ALL))):
+        # extra_attrib_setが組み込みとかぶっていないこと
+        return False
+    
+    # ATTRIBUTESの要素がすべてログ情報に含まれること
+    all_attrib = extra_attrib_set | set(ATTRIBUTE_BUILT_IN_ALL)
+    return set(ATTRIBUTES).issubset(all_attrib)
 
 
 

@@ -6,7 +6,7 @@ import pytest
 # from testfixtures import LogCapture
 
 from logtools.logging_tool import get_funcname, LoggingSetting, getLogger
-from logtools.logging_tool import _get_args, _get_extra_attribs
+from logtools.logging_tool import _get_args, _get_extra_attribs, _is_attribs_available
 
 def test_get_funcname_at_func():
     def callingfunc():
@@ -52,17 +52,6 @@ class TestLogger():
         
     def test_name_prop(self):
         assert self.logger.name == "testlogger"
-    
-    @pytest.mark.parametrize("attrib, expect"
-                             , [(['values', 'tag', 'function', 'exception', 'action']
-                                 , True)
-                                , (['values', 'tag', 'function', 'exception']
-                                   , False) # 不足
-                                , (['values', 'tag', 'function', 'foo', 'exception', 'action']
-                                   , True) # 過剰は問題ない
-                                ])
-    def test_is_attribs_available(self, attrib, expect):
-        assert self.logger._is_attribs_available(set(attrib)) == expect
         
     def test_make_loggingsetting(self):
         attribs_tpl = tuple(["asctime", "levelname", "name", "function"
@@ -109,3 +98,11 @@ def test_get_extra_attribs():
     tar = getLogger("target_dummy")
     
     assert _get_extra_attribs(tar) == expect
+    
+@pytest.mark.parametrize("attrib, expect"
+                         , [(['values', 'tag', 'function', 'exception', 'action'], True)
+                            , (['values', 'tag', 'function', 'exception'], False) # 不足
+                            , (['values', 'tag', 'function', 'foo', 'exception', 'action'], True) # 過剰は問題ない
+                            ])
+def test_is_attribs_available(attrib, expect):
+    assert _is_attribs_available(set(attrib)) == expect
