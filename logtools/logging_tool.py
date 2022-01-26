@@ -94,6 +94,25 @@ class Logger():
     """
     _attributes = ATTRIBUTES
     _splitter = SPLITTER
+    
+    @classmethod
+    def makeformat(cls, attributes = _attributes, splitter = _splitter):
+        extra_attribs = _get_extra_attribs(cls())
+        ExtraLogData = namedtuple("ExtraLogData", extra_attribs
+                                  , defaults = [None for _ in range(len(extra_attribs))])
+        
+        # make format
+        ## [FutureWork]ここは関数にしてしまうべき
+        form = "%(" + attributes[0] + ")s"
+        if len(attributes) > 1:
+            for attrib in attributes[1:]:
+                form += splitter + "%(" + attrib + ")s"
+                
+        # [ToDo] クラス変数の書き換え
+        
+        return LogSetting(attributes=attributes, splitter = splitter
+                          , ExtraLogData = ExtraLogData, format = form)
+    
     def __init__(self, name=None):
         """
 

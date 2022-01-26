@@ -87,6 +87,24 @@ class TestLogger():
     def test_logging(self, capture):
         ...
 
+def test_makeformat_default():
+    """Loggerクラスメソッドのtest_makeformat()のテスト"""
+    expect = LogSetting(attributes=tuple(["asctime", "levelname", "name", "function", "action", "exception", "message", "tag", "values"])
+                        , splitter = "==="
+                        , format = "%(asctime)s===%(levelname)s===%(name)s===%(function)s===%(action)s===%(exception)s===%(message)s===%(tag)s===%(values)s"
+                        , ExtraLogData = namedtuple("ExtraLogData", set(['values', 'tag', 'function', 'exception', 'action']))
+                        )
+    logsetting = Logger.makeformat()
+    
+    assert logsetting.attributes == tuple(["asctime", "levelname", "name", "function", "action", "exception", "message", "tag", "values"])
+    assert logsetting.splitter == "==="
+    assert logsetting.format == "%(asctime)s===%(levelname)s===%(name)s===%(function)s===%(action)s===%(exception)s===%(message)s===%(tag)s===%(values)s"
+
+    extralogdata = logsetting.ExtraLogData()
+    expect = {key:None for key in ['values', 'tag', 'function', 'exception', 'action']}
+    
+    assert extralogdata._asdict() == expect
+    
 def test_Logger_class_variable():
     assert Logger._attributes == tuple(["asctime", "levelname", "name", "function"
                                         , "action", "exception", "message", "tag", "values"])
@@ -119,3 +137,4 @@ def test_get_extra_attribs():
                             ])
 def test_is_attribs_available(attrib, expect):
     assert _is_attribs_available(set(attrib)) == expect
+    
