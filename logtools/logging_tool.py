@@ -35,20 +35,22 @@ ATTRIBUTE_BUILT_IN_ALL = ["asctime", "created", "filename", "funcName"
                           , "relativeCreated", "thread", "threadName"]
 
 
-@dataclasses.dataclass
-class LoggingSetting():
+@dataclasses.dataclass(frozen=True)
+class LogSetting():
     # ログの設定を格納するクラス
     attributes : Tuple[str]
     splitter : str
+    format : str  = "%(A)s===%(BBB)s===%(Car)s" # [ToDo] デフォルトは設けない
     
-    def __post_init__(self):
-        # make format
-        form = "%(" + self.attributes[0] + ")s"
-        if len(self.attributes) > 1:
-            for attrib in self.attributes[1:]:
-                form += self.splitter + "%(" + attrib + ")s"
-                
-        self.format = form
+    # # [ToDo]削除予定
+    # def __post_init__(self):
+    #     # make format
+    #     form = "%(" + self.attributes[0] + ")s"
+    #     if len(self.attributes) > 1:
+    #         for attrib in self.attributes[1:]:
+    #             form += self.splitter + "%(" + attrib + ")s"
+    #             
+    #     self.format = form
 
 
 def get_funcname(layer:int = 1)->str:
@@ -335,9 +337,9 @@ class Logger():
         hdlr.setFormatter(formatter)
         self.addHandler(hdlr)
     
-    def _make_loggingsetting(self) -> LoggingSetting:
-        if _is_attribs_available(self.extra_attribs):
-            return LoggingSetting(Logger._attributes, Logger._splitter)
+    def _make_loggingsetting(self) -> LogSetting:
+        if _is_attribs_available(_get_extra_attribs(self)):
+            return LogSetting(Logger._attributes, Logger._splitter)
         else:
             raise ConfigurationError
         

@@ -1,11 +1,11 @@
-
+import dataclasses
 import logging
 from ssl import ALERT_DESCRIPTION_BAD_RECORD_MAC
 
 import pytest
 # from testfixtures import LogCapture
 
-from logtools.logging_tool import get_funcname, LoggingSetting, getLogger, Logger
+from logtools.logging_tool import get_funcname, LogSetting, getLogger, Logger
 from logtools.logging_tool import _get_args, _get_extra_attribs, _is_attribs_available
 
 def test_get_funcname_at_func():
@@ -27,17 +27,22 @@ def test_get_funcname_at_class():
     assert cc.in_init == "CallingClass.__init__"
     assert cc.calling_method() == "CallingClass.calling_method"
     
-class TestLoggingSetting():
+class TestLogSetting():
     def setup_method(self,method):
         print('method={}'.format(method.__name__))
-        self.logset = LoggingSetting(attributes=["A", "BBB", "Car"]
+        self.logset = LogSetting(attributes=["A", "BBB", "Car"]
                                   , splitter = "===")
 
     def teardown_method(self, method):
         print('method={}'.format(method.__name__))
         del self.logset
         
+    def test_frozen(self):
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            self.logset.splitter = "---"
+        
     def test_post_ini(self):
+        # [ToDo]削除予定
         assert self.logset.format == "%(A)s===%(BBB)s===%(Car)s"
         
 
@@ -57,7 +62,7 @@ class TestLogger():
         attribs_tpl = tuple(["asctime", "levelname", "name", "function"
                              , "action", "exception", "message", "tag", "values"
                              ])
-        expect = LoggingSetting(attributes = attribs_tpl, splitter = "===")
+        expect = LogSetting(attributes = attribs_tpl, splitter = "===")
         assert self.logger._make_loggingsetting() == expect
         
         
