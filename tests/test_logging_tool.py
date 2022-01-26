@@ -1,3 +1,4 @@
+from collections import namedtuple
 import dataclasses
 import logging
 from ssl import ALERT_DESCRIPTION_BAD_RECORD_MAC
@@ -31,7 +32,8 @@ class TestLogSetting():
     def setup_method(self,method):
         print('method={}'.format(method.__name__))
         self.logset = LogSetting(attributes=["A", "BBB", "Car"]
-                                  , splitter = "===")
+                                 , splitter = "==="
+                                 , ExtraLogData = namedtuple("ExtraLogData", ["a"]))
 
     def teardown_method(self, method):
         print('method={}'.format(method.__name__))
@@ -41,10 +43,11 @@ class TestLogSetting():
         with pytest.raises(dataclasses.FrozenInstanceError):
             self.logset.splitter = "---"
         
-    def test_post_ini(self):
-        # [ToDo]削除予定
-        assert self.logset.format == "%(A)s===%(BBB)s===%(Car)s"
+    def test_ini(self):
+        assert self.logset.format == "%(A)s===%(BBB)s===%(Car)s" # [ToDo]削除予定
         
+        extralogdata = self.logset.ExtraLogData(a = 3)
+        assert extralogdata._asdict() == {"a":3}
 
 class TestLogger():
     def setup_method(self,method):

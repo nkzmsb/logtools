@@ -40,6 +40,7 @@ class LogSetting():
     # ログの設定を格納するクラス
     attributes : Tuple[str]
     splitter : str
+    ExtraLogData : object = "dummy" # namedtuple # [ToDo] デフォルトは設けない
     format : str  = "%(A)s===%(BBB)s===%(Car)s" # [ToDo] デフォルトは設けない
     
     # # [ToDo]削除予定
