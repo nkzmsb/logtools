@@ -98,6 +98,9 @@ class Logger():
     @classmethod
     def makeformat(cls, attributes = _attributes, splitter = _splitter):
         extra_attribs = _get_extra_attribs(cls())
+        if not _is_attribs_available(extra_attribs):
+            raise ConfigurationError
+        
         ExtraLogData = namedtuple("ExtraLogData", extra_attribs
                                   , defaults = [None for _ in range(len(extra_attribs))])
         
