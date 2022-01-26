@@ -108,7 +108,9 @@ class Logger():
             for attrib in attributes[1:]:
                 form += splitter + "%(" + attrib + ")s"
                 
-        # [ToDo] クラス変数の書き換え
+        # クラス変数の書き換え
+        cls._attributes = attributes
+        cls._splitter = splitter
         
         return LogSetting(attributes=attributes, splitter = splitter
                           , ExtraLogData = ExtraLogData, format = form)

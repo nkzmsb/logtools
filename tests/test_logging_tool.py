@@ -105,6 +105,29 @@ def test_makeformat_default():
     
     assert extralogdata._asdict() == expect
     
+def test_makeformat_nondefault():
+    """Loggerクラスメソッドのtest_makeformat()のテスト:引数指定"""
+    expect = LogSetting(attributes=tuple(["asctime", "function", "message"])
+                        , splitter = "~~~"
+                        , format = "%(asctime)s~~~%(function)s~~~%(message)s"
+                        , ExtraLogData = namedtuple("ExtraLogData", set(['function']))
+                        )
+    logsetting = Logger.makeformat(attributes=tuple(["asctime", "function", "message"])
+                                   , splitter = "~~~")
+    
+    assert logsetting.attributes == tuple(["asctime", "function", "message"])
+    assert logsetting.splitter == "~~~"
+    assert logsetting.format == "%(asctime)s~~~%(function)s~~~%(message)s"
+
+    # Note : ExtraLogDataはmakeformatの引数が与えられても変化しない
+    extralogdata = logsetting.ExtraLogData()
+    expect = {key:None for key in ['values', 'tag', 'function', 'exception', 'action']}
+    
+    assert dict(extralogdata._asdict()) == expect
+    
+    assert Logger._attributes == tuple(["asctime", "function", "message"])
+    assert Logger._splitter == "~~~"
+    
 def test_Logger_class_variable():
     assert Logger._attributes == tuple(["asctime", "levelname", "name", "function"
                                         , "action", "exception", "message", "tag", "values"])
