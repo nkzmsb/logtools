@@ -98,7 +98,7 @@ class Logger():
     @classmethod
     def makeformat(cls, attributes = _attributes, splitter = _splitter):
         extra_attribs = _get_extra_attribs(cls())
-        if not _is_attribs_available(extra_attribs):
+        if not _is_attribs_available(set(attributes), extra_attribs):
             raise ConfigurationError
         
         ExtraLogData = namedtuple("ExtraLogData", extra_attribs
@@ -363,7 +363,7 @@ class Logger():
         self.addHandler(hdlr)
     
     def _make_loggingsetting(self) -> LogSetting:
-        if _is_attribs_available(_get_extra_attribs(self)):
+        if _is_attribs_available(set(ATTRIBUTES), _get_extra_attribs(self)):
             return LogSetting(Logger._attributes, Logger._splitter)
         else:
             raise ConfigurationError
@@ -421,8 +421,16 @@ def _get_extra_attribs(logger : Logger) -> set:
     
     return attrib_set - set(["message"]) # messageは組み込み属性
 
-def _is_attribs_available(extra_attrib_set) -> bool:
+def _is_attribs_available(log_attrib_set, extra_attrib_set) -> bool:
     """Logger._attributesが実現できるのかどうかを確認
+    
+    Parameters
+    ----------
+    log_attrib_set : set of str
+        ログすることを所望するログ属性
+    extra_attrib_set : set of str
+        コード解析(_get_extra_attribs)によって得られた、
+        Loggerが準備できる組み込みではないログ属性
     
     Note
     ----------
@@ -440,7 +448,7 @@ def _is_attribs_available(extra_attrib_set) -> bool:
     
     # Logger._attributesの要素がすべてログ情報に含まれること
     all_attrib = extra_attrib_set | set(ATTRIBUTE_BUILT_IN_ALL)
-    return set(Logger._attributes).issubset(all_attrib)
+    return log_attrib_set.issubset(all_attrib)
 
 
 

@@ -93,69 +93,62 @@ class TestLoggerClassMethod_and_Val():
     
     Notes
     -----
-    クラスメソッドやクラス変数をいじると、他のテストに影響するので遮蔽
+    - クラスメソッドやクラス変数をいじると、他のテストに影響するので遮蔽
+    - [FutureWork]テストが失敗するとteardownが呼ばれないので、遮蔽できない。改善必要。
     """
     def setup_method(self,method):
-        print('method={}'.format(method.__name__))
+        print('run : method={}'.format(method.__name__))
 
     def teardown_method(self, method):
-        print('method={}'.format(method.__name__))
-        
         # 元に戻す：これもmakeformatメソッドが正しく動作しておく必要がある
         Logger.makeformat(attributes = tuple(["asctime", "levelname", "name", "function"
                                               , "action", "exception", "message", "tag", "values"
                                               ])
                           , splitter = "===")
+        print('finished : method={}'.format(method.__name__))
         
-        def test_makeformat_default(self):
-            """Loggerクラスメソッドのtest_makeformat()のテスト"""
-            expect = LogSetting(attributes=tuple(["asctime", "levelname", "name", "function", "action", "exception", "message", "tag", "values"])
-                                , splitter = "==="
-                                , format = "%(asctime)s===%(levelname)s===%(name)s===%(function)s===%(action)s===%(exception)s===%(message)s===%(tag)s===%(values)s"
-                                , ExtraLogData = namedtuple("ExtraLogData", set(['values', 'tag', 'function', 'exception', 'action']))
-                                )
-            logsetting = Logger.makeformat()
-
-            assert logsetting.attributes == tuple(["asctime", "levelname", "name", "function", "action", "exception", "message", "tag", "values"])
-            assert logsetting.splitter == "==="
-            assert logsetting.format == "%(asctime)s===%(levelname)s===%(name)s===%(function)s===%(action)s===%(exception)s===%(message)s===%(tag)s===%(values)s"
-
-            extralogdata = logsetting.ExtraLogData()
-            expect = {key:None for key in ['values', 'tag', 'function', 'exception', 'action']}
-
-            assert extralogdata._asdict() == expect
+    def test_makeformat_default(self):
+        """Loggerクラスメソッドのtest_makeformat()のテスト"""
+        expect = LogSetting(attributes=tuple(["asctime", "levelname", "name", "function", "action", "exception", "message", "tag", "values"])
+                            , splitter = "==="
+                            , format = "%(asctime)s===%(levelname)s===%(name)s===%(function)s===%(action)s===%(exception)s===%(message)s===%(tag)s===%(values)s"
+                            , ExtraLogData = namedtuple("ExtraLogData", set(['values', 'tag', 'function', 'exception', 'action']))
+                            )
+        logsetting = Logger.makeformat()
+        assert logsetting.attributes == tuple(["asctime", "levelname", "name", "function", "action", "exception", "message", "tag", "values"])
+        assert logsetting.splitter == "==="
+        assert logsetting.format == "%(asctime)s===%(levelname)s===%(name)s===%(function)s===%(action)s===%(exception)s===%(message)s===%(tag)s===%(values)s"
+        extralogdata = logsetting.ExtraLogData()
+        expect = {key:None for key in ['values', 'tag', 'function', 'exception', 'action']}
+        assert extralogdata._asdict() == expect
+    
+    def test_makeformat_nondefault(self):
+        """Loggerクラスメソッドのtest_makeformat()のテスト:引数指定"""
+        expect = LogSetting(attributes=tuple(["asctime", "function", "message"])
+                            , splitter = "~~~"
+                            , format = "%(asctime)s~~~%(function)s~~~%(message)s"
+                            , ExtraLogData = namedtuple("ExtraLogData", set(['function']))
+                            )
+        logsetting = Logger.makeformat(attributes=tuple(["asctime", "function", "message"])
+                                       , splitter = "~~~")
+        assert logsetting.attributes == tuple(["asctime", "function", "message"])
+        assert logsetting.splitter == "~~~"
+        assert logsetting.format == "%(asctime)s~~~%(function)s~~~%(message)s"
+        # Note : ExtraLogDataはmakeformatの引数が与えられても変化しない
+        extralogdata = logsetting.ExtraLogData()
+        expect = {key:None for key in ['values', 'tag', 'function', 'exception', 'action']}
+        assert dict(extralogdata._asdict()) == expect
+        assert Logger._attributes == tuple(["asctime", "function", "message"])
+        assert Logger._splitter == "~~~"
         
-        def test_makeformat_nondefault(self):
-            """Loggerクラスメソッドのtest_makeformat()のテスト:引数指定"""
-            expect = LogSetting(attributes=tuple(["asctime", "function", "message"])
-                                , splitter = "~~~"
-                                , format = "%(asctime)s~~~%(function)s~~~%(message)s"
-                                , ExtraLogData = namedtuple("ExtraLogData", set(['function']))
-                                )
-            logsetting = Logger.makeformat(attributes=tuple(["asctime", "function", "message"])
-                                           , splitter = "~~~")
-
-            assert logsetting.attributes == tuple(["asctime", "function", "message"])
-            assert logsetting.splitter == "~~~"
-            assert logsetting.format == "%(asctime)s~~~%(function)s~~~%(message)s"
-
-            # Note : ExtraLogDataはmakeformatの引数が与えられても変化しない
-            extralogdata = logsetting.ExtraLogData()
-            expect = {key:None for key in ['values', 'tag', 'function', 'exception', 'action']}
-
-            assert dict(extralogdata._asdict()) == expect
-
-            assert Logger._attributes == tuple(["asctime", "function", "message"])
-            assert Logger._splitter == "~~~"
-
-        def test_makeformat_raise(self):
-            with pytest.raises(ConfigurationError):
-                Logger.makeformat(attributes = tuple(["action", "boo"]))
-
-        def test_Logger_class_variable(self):
-            assert Logger._attributes == tuple(["asctime", "levelname", "name", "function"
-                                                , "action", "exception", "message", "tag", "values"])
-            assert Logger._splitter == "==="
+    def test_makeformat_raise(self):
+        with pytest.raises(ConfigurationError):
+            Logger.makeformat(attributes = tuple(["action", "foo"]))
+            
+    def test_Logger_class_variable(self):
+        assert Logger._attributes == tuple(["asctime", "levelname", "name", "function"
+                                            , "action", "exception", "message", "tag", "values"])
+        assert Logger._splitter == "==="
 
 def test_get_args():
     def target(message, action, tag="aaa", values=False):
@@ -183,5 +176,7 @@ def test_get_extra_attribs():
                             , (['values', 'tag', 'function', 'foo', 'exception', 'action'], True) # 過剰は問題ない
                             ])
 def test_is_attribs_available(attrib, expect):
-    assert _is_attribs_available(set(attrib)) == expect
+    assert _is_attribs_available(set(["asctime", "levelname", "name", "function"
+                                      , "action", "exception", "message", "tag", "values"
+                                      ]),set(attrib)) == expect
     
