@@ -60,15 +60,7 @@ class TestLogger():
         del self.logger
         
     def test_name_prop(self):
-        assert self.logger.name == "testlogger"
-        
-    def test_make_loggingsetting(self):
-        attribs_tpl = tuple(["asctime", "levelname", "name", "function"
-                             , "action", "exception", "message", "tag", "values"
-                             ])
-        expect = LogSetting(attributes = attribs_tpl, splitter = "===")
-        assert self.logger._make_loggingsetting() == expect
-        
+        assert self.logger.name == "testlogger"        
         
     def test_ExtraLogData(self):
         eld = self.logger._ExtraLogData()

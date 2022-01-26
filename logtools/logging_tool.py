@@ -134,12 +134,7 @@ class Logger():
         else:
             self.__logger = None
             
-        self.logsetting = self._make_loggingsetting()
-        
-        # extra引数でログする内容のコンテナ
-        extra_attribs = _get_extra_attribs(self)
-        self._ExtraLogData = namedtuple("ExtraLogData", extra_attribs
-                                        , defaults = [None for _ in range(len(extra_attribs))])
+        self.logsetting = Logger.makeformat()
             
         
     @property
@@ -213,10 +208,10 @@ class Logger():
         
         f = get_funcname(2) if function is None else function
         
-        extralogdata = self._ExtraLogData(action = action
-                                          , function = f
-                                          , tag = tag
-                                          , values = values)
+        extralogdata = self.logsetting.ExtraLogData(action = action
+                                                    , function = f
+                                                    , tag = tag
+                                                    , values = values)
         self._logging(extralogdata, "debug", message)
         
     def info(self
@@ -256,10 +251,10 @@ class Logger():
             , by default None
         """
         
-        extralogdata = self._ExtraLogData(action = action
-                                          , function = get_funcname(2)
-                                          , tag = tag
-                                          , values = values)
+        extralogdata = self.logsetting.ExtraLogData(action = action
+                                                    , function = get_funcname(2)
+                                                    , tag = tag
+                                                    , values = values)
         self._logging(extralogdata, "info", message)
         
     def warning(self
@@ -285,9 +280,9 @@ class Logger():
             , by default None
         """
         
-        extralogdata = self._ExtraLogData(exception = exception
-                                          , function = get_funcname(2)
-                                          , values = values)
+        extralogdata = self.logsetting.ExtraLogData(exception = exception
+                                                    , function = get_funcname(2)
+                                                    , values = values)
         self._logging(extralogdata, "warning", message)
         
     def error(self
@@ -312,9 +307,9 @@ class Logger():
             its values must be parseable
             , by default None
         """
-        extralogdata = self._ExtraLogData(exception = exception
-                                          , function = get_funcname(2)
-                                          , values = values)
+        extralogdata = self.logsetting.ExtraLogData(exception = exception
+                                                    , function = get_funcname(2)
+                                                    , values = values)
         self._logging(extralogdata, "error", message)
         
     def critical(self
@@ -339,9 +334,9 @@ class Logger():
             its values must be parseable
             , by default None
         """
-        extralogdata = self._ExtraLogData(exception = exception
-                                          , function = get_funcname(2)
-                                          , values = values)
+        extralogdata = self.logsetting.ExtraLogData(exception = exception
+                                                    , function = get_funcname(2)
+                                                    , values = values)
         self._logging(extralogdata, "critical", message)
     
     def setLevel(self, level):
@@ -360,15 +355,7 @@ class Logger():
         formatter = logging.Formatter(self.logsetting.format)
         hdlr = logging.StreamHandler()
         hdlr.setFormatter(formatter)
-        self.addHandler(hdlr)
-    
-    def _make_loggingsetting(self) -> LogSetting:
-        if _is_attribs_available(set(ATTRIBUTES), _get_extra_attribs(self)):
-            return LogSetting(Logger._attributes, Logger._splitter)
-        else:
-            raise ConfigurationError
-        
-        
+        self.addHandler(hdlr)    
         
     def _logging(self, extralogdata, level, message = None):
         """ExtraLogDataの内容をロギングする
