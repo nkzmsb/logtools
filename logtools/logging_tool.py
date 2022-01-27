@@ -9,7 +9,7 @@ import warnings
 
 
 ##############################################
-# LogのSetting
+# Logのデフォルト設定
 ##############################################
 # [ログに含める属性]
 # この順番通りにログが作成される
@@ -25,7 +25,9 @@ SPLITTER = "==="
 # 以下、コード
 # ログの内容を変更したい場合には、Loggerクラスを編集する
 ##############################################
-
+# logtoolsオリジナルの属性
+# Loggerのdebug, info, warning, error, criticalメソッドの引数と対応している
+EXTRA_ATTRIBUTES = tuple(['values', 'tag', 'function', 'exception', 'action'])
 
 # 組み込みで用意されている属性
 # https://docs.python.org/ja/3/library/logging.html#logrecord-attributes
@@ -35,21 +37,13 @@ ATTRIBUTE_BUILT_IN_ALL = ["asctime", "created", "filename", "funcName"
                           , "relativeCreated", "thread", "threadName"]
 
 
-@dataclasses.dataclass
-class LoggingSetting():
+@dataclasses.dataclass(frozen=True)
+class LogSetting():
     # ログの設定を格納するクラス
     attributes : Tuple[str]
     splitter : str
-    
-    def __post_init__(self):
-        # make format
-        form = "%(" + self.attributes[0] + ")s"
-        if len(self.attributes) > 1:
-            for attrib in self.attributes[1:]:
-                form += self.splitter + "%(" + attrib + ")s"
-                
-        self.format = form
-
+    ExtraLogData : object
+    format : str
 
 def get_funcname(layer:int = 1)->str:
     """呼び出し元の関数名を返す
@@ -76,12 +70,44 @@ def getLogger(name):
 
 class Logger():
     """
+    Attributes
+    ----------
+    _attributes : tuple of str
+        Do not change directly
+    _splitter : str
+        Do not change directly
+    
     Notes
     -----
     For better compatibility with python standard Logger, 
     it is highly recommended to use getLogger() in this module 
     for instantiation of this class.
     """
+    _attributes = ATTRIBUTES
+    _splitter = SPLITTER
+    
+    @classmethod
+    def makeformat(cls, attributes = _attributes, splitter = _splitter):
+        if not _is_attribs_available(set(attributes), set(EXTRA_ATTRIBUTES)):
+            raise ConfigurationError
+        
+        ExtraLogData = namedtuple("ExtraLogData", EXTRA_ATTRIBUTES
+                                  , defaults = [None for _ in range(len(EXTRA_ATTRIBUTES))])
+        
+        # make format
+        ## [FutureWork]ここは関数にしてしまうべき
+        form = "%(" + attributes[0] + ")s"
+        if len(attributes) > 1:
+            for attrib in attributes[1:]:
+                form += splitter + "%(" + attrib + ")s"
+                
+        # クラス変数の書き換え
+        cls._attributes = attributes
+        cls._splitter = splitter
+        
+        return LogSetting(attributes=attributes, splitter = splitter
+                          , ExtraLogData = ExtraLogData, format = form)
+    
     def __init__(self, name=None):
         """
 
@@ -97,13 +123,8 @@ class Logger():
             self.__logger.addHandler(logging.NullHandler())
         else:
             self.__logger = None
-        
-        self.extra_attribs = self._get_extra_attribs()    
-        self.logsetting = self._make_loggingsetting()
-        
-        # extra引数でログする内容のコンテナ
-        self._ExtraLogData = namedtuple("ExtraLogData", self.extra_attribs
-                                        , defaults = [None for _ in range(len(self.extra_attribs))])
+            
+        self.logsetting = Logger.makeformat()
             
         
     @property
@@ -177,10 +198,10 @@ class Logger():
         
         f = get_funcname(2) if function is None else function
         
-        extralogdata = self._ExtraLogData(action = action
-                                          , function = f
-                                          , tag = tag
-                                          , values = values)
+        extralogdata = self.logsetting.ExtraLogData(action = action
+                                                    , function = f
+                                                    , tag = tag
+                                                    , values = values)
         self._logging(extralogdata, "debug", message)
         
     def info(self
@@ -220,10 +241,10 @@ class Logger():
             , by default None
         """
         
-        extralogdata = self._ExtraLogData(action = action
-                                          , function = get_funcname(2)
-                                          , tag = tag
-                                          , values = values)
+        extralogdata = self.logsetting.ExtraLogData(action = action
+                                                    , function = get_funcname(2)
+                                                    , tag = tag
+                                                    , values = values)
         self._logging(extralogdata, "info", message)
         
     def warning(self
@@ -249,9 +270,9 @@ class Logger():
             , by default None
         """
         
-        extralogdata = self._ExtraLogData(exception = exception
-                                          , function = get_funcname(2)
-                                          , values = values)
+        extralogdata = self.logsetting.ExtraLogData(exception = exception
+                                                    , function = get_funcname(2)
+                                                    , values = values)
         self._logging(extralogdata, "warning", message)
         
     def error(self
@@ -276,9 +297,9 @@ class Logger():
             its values must be parseable
             , by default None
         """
-        extralogdata = self._ExtraLogData(exception = exception
-                                          , function = get_funcname(2)
-                                          , values = values)
+        extralogdata = self.logsetting.ExtraLogData(exception = exception
+                                                    , function = get_funcname(2)
+                                                    , values = values)
         self._logging(extralogdata, "error", message)
         
     def critical(self
@@ -303,9 +324,9 @@ class Logger():
             its values must be parseable
             , by default None
         """
-        extralogdata = self._ExtraLogData(exception = exception
-                                          , function = get_funcname(2)
-                                          , values = values)
+        extralogdata = self.logsetting.ExtraLogData(exception = exception
+                                                    , function = get_funcname(2)
+                                                    , values = values)
         self._logging(extralogdata, "critical", message)
     
     def setLevel(self, level):
@@ -324,55 +345,7 @@ class Logger():
         formatter = logging.Formatter(self.logsetting.format)
         hdlr = logging.StreamHandler()
         hdlr.setFormatter(formatter)
-        self.addHandler(hdlr)
-        
-    def _get_args(self, func) -> set:
-        # メソッド（関数）のパラメータを取得する
-        return set(signature(func).parameters.keys())
-    
-    def _get_extra_attribs(self) -> set:
-        """組み込みではないログ属性のsetを取得する
-        
-        ログメソッドのパラメータを重複なく取得する
-        """
-        attrib_set = self._get_args(self.debug)
-        attrib_set = attrib_set | self._get_args(self.info)
-        attrib_set = attrib_set | self._get_args(self.warning)
-        attrib_set = attrib_set | self._get_args(self.error)
-        attrib_set = attrib_set | self._get_args(self.critical)
-        attrib_set = attrib_set | set(["function"]) # functionは引数では扱わない
-        
-        return attrib_set - set(["message"]) # messageは組み込み属性
-    
-    def _is_attribs_available(self, extra_attrib_set) -> bool:
-        """ATTRIBUTESが実現できるのかどうかを確認
-        
-        Note
-        ----------
-        - extra_attrib_setにATTRIBUTESに含まれない属性が含まれていたとしても
-          ログ自体は正常に動作するのでTrueを返す
-
-        Parameters
-        ----------
-        extra_attrib_set : set of str
-            組み込みではないログ属性
-        """
-        # ATTRIBUTESが実現できるのかどうかを確認
-        if not(extra_attrib_set.isdisjoint(set(ATTRIBUTE_BUILT_IN_ALL))):
-            # extra_attrib_setが組み込みとかぶっていないこと
-            return False
-        
-        # ATTRIBUTESの要素がすべてログ情報に含まれること
-        all_attrib = extra_attrib_set | set(ATTRIBUTE_BUILT_IN_ALL)
-        return set(ATTRIBUTES).issubset(all_attrib)
-    
-    def _make_loggingsetting(self) -> LoggingSetting:
-        if self._is_attribs_available(self.extra_attribs):
-            return LoggingSetting(ATTRIBUTES, SPLITTER)
-        else:
-            raise ConfigurationError
-        
-        
+        self.addHandler(hdlr)    
         
     def _logging(self, extralogdata, level, message = None):
         """ExtraLogDataの内容をロギングする
@@ -406,12 +379,48 @@ class Logger():
         else:
             self.__logger.warning(msg = "unexpected loglevel"
                                   , extra = extralog_dic)
-        
+
+def _is_attribs_available(log_attrib_set, extra_attrib_set) -> bool:
+    """Logger._attributesが実現できるのかどうかを確認
+    
+    Parameters
+    ----------
+    log_attrib_set : set of str
+        ログすることを所望するログ属性
+    extra_attrib_set : set of str
+        Loggerが準備できる組み込みではないログ属性
+    
+    Note
+    ----------
+    - extra_attrib_setにLogger._attributesに含まれない属性が含まれていたとしても
+      ログ自体は正常に動作するのでTrueを返す
+    Parameters
+    ----------
+    extra_attrib_set : set of str
+        組み込みではないログ属性
+    """
+    # Logger._attributesが実現できるのかどうかを確認
+    if not(extra_attrib_set.isdisjoint(set(ATTRIBUTE_BUILT_IN_ALL))):
+        # extra_attrib_setが組み込みとかぶっていないこと
+        return False
+    
+    # Logger._attributesの要素がすべてログ情報に含まれること
+    all_attrib = extra_attrib_set | set(ATTRIBUTE_BUILT_IN_ALL)
+    return log_attrib_set.issubset(all_attrib)
+
+
 
 class ConfigurationError(Exception):
     """Logger code and ATTRIBUTES are considered inconsistent
     """
     pass
+
+
+
+
+
+
+
     
 if __name__ == "__main__":
     import logging
