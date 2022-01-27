@@ -28,7 +28,7 @@ def invalid_short_log():
     
     return ret
 
-# [ToDo] numpy件はtest_breakdown_values_warning_SEに追加する
+# [FutureWork] numpy件はtest_breakdown_values_warning_SEに追加する
 # def invalid_np_log():
 #     """valueが解析できずに、loganal.pyで取り扱えないログ（１つ）を作成する
 #     """

@@ -34,7 +34,8 @@ class TestLogSetting():
         print('method={}'.format(method.__name__))
         self.logset = LogSetting(attributes=["A", "BBB", "Car"]
                                  , splitter = "==="
-                                 , ExtraLogData = namedtuple("ExtraLogData", ["a"]))
+                                 , ExtraLogData = namedtuple("ExtraLogData", ["a"])
+                                 , format = "%(A)s===%(BBB)s===%(Car)s")
 
     def teardown_method(self, method):
         print('method={}'.format(method.__name__))
@@ -45,8 +46,6 @@ class TestLogSetting():
             self.logset.splitter = "---"
         
     def test_ini(self):
-        assert self.logset.format == "%(A)s===%(BBB)s===%(Car)s" # [ToDo]削除予定
-        
         extralogdata = self.logset.ExtraLogData(a = 3)
         assert extralogdata._asdict() == {"a":3}
 

@@ -42,19 +42,8 @@ class LogSetting():
     # ログの設定を格納するクラス
     attributes : Tuple[str]
     splitter : str
-    ExtraLogData : object = "dummy" # namedtuple # [ToDo] デフォルトは設けない
-    format : str  = "%(A)s===%(BBB)s===%(Car)s" # [ToDo] デフォルトは設けない
-    
-    # # [ToDo]削除予定
-    # def __post_init__(self):
-    #     # make format
-    #     form = "%(" + self.attributes[0] + ")s"
-    #     if len(self.attributes) > 1:
-    #         for attrib in self.attributes[1:]:
-    #             form += self.splitter + "%(" + attrib + ")s"
-    #             
-    #     self.format = form
-
+    ExtraLogData : object
+    format : str
 
 def get_funcname(layer:int = 1)->str:
     """呼び出し元の関数名を返す
