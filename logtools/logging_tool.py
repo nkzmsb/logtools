@@ -25,7 +25,9 @@ SPLITTER = "==="
 # 以下、コード
 # ログの内容を変更したい場合には、Loggerクラスを編集する
 ##############################################
-
+# logtoolsオリジナルの属性
+# Loggerのdebug, info, warning, error, criticalメソッドの引数と対応している
+EXTRA_ATTRIBUTES = tuple(['values', 'tag', 'function', 'exception', 'action'])
 
 # 組み込みで用意されている属性
 # https://docs.python.org/ja/3/library/logging.html#logrecord-attributes
@@ -97,12 +99,11 @@ class Logger():
     
     @classmethod
     def makeformat(cls, attributes = _attributes, splitter = _splitter):
-        extra_attribs = _get_extra_attribs(cls())
-        if not _is_attribs_available(set(attributes), extra_attribs):
+        if not _is_attribs_available(set(attributes), set(EXTRA_ATTRIBUTES)):
             raise ConfigurationError
         
-        ExtraLogData = namedtuple("ExtraLogData", extra_attribs
-                                  , defaults = [None for _ in range(len(extra_attribs))])
+        ExtraLogData = namedtuple("ExtraLogData", EXTRA_ATTRIBUTES
+                                  , defaults = [None for _ in range(len(EXTRA_ATTRIBUTES))])
         
         # make format
         ## [FutureWork]ここは関数にしてしまうべき
@@ -389,24 +390,6 @@ class Logger():
         else:
             self.__logger.warning(msg = "unexpected loglevel"
                                   , extra = extralog_dic)
-        
-def _get_args(func) -> set:
-    # メソッド（関数）のパラメータを取得する
-    return set(signature(func).parameters.keys())
-
-def _get_extra_attribs(logger : Logger) -> set:
-    """組み込みではないログ属性のsetを取得する
-    
-    ログメソッドのパラメータを重複なく取得する
-    """
-    attrib_set = _get_args(logger.debug)
-    attrib_set = attrib_set | _get_args(logger.info)
-    attrib_set = attrib_set | _get_args(logger.warning)
-    attrib_set = attrib_set | _get_args(logger.error)
-    attrib_set = attrib_set | _get_args(logger.critical)
-    attrib_set = attrib_set | set(["function"]) # functionは引数では扱わない
-    
-    return attrib_set - set(["message"]) # messageは組み込み属性
 
 def _is_attribs_available(log_attrib_set, extra_attrib_set) -> bool:
     """Logger._attributesが実現できるのかどうかを確認
@@ -416,7 +399,6 @@ def _is_attribs_available(log_attrib_set, extra_attrib_set) -> bool:
     log_attrib_set : set of str
         ログすることを所望するログ属性
     extra_attrib_set : set of str
-        コード解析(_get_extra_attribs)によって得られた、
         Loggerが準備できる組み込みではないログ属性
     
     Note

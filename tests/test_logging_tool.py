@@ -8,7 +8,7 @@ import pytest
 # from testfixtures import LogCapture
 
 from logtools.logging_tool import get_funcname, LogSetting, getLogger, Logger, ConfigurationError
-from logtools.logging_tool import _get_args, _get_extra_attribs, _is_attribs_available
+from logtools.logging_tool import _is_attribs_available
 
 def test_get_funcname_at_func():
     def callingfunc():
@@ -63,7 +63,7 @@ class TestLogger():
         assert self.logger.name == "testlogger"        
         
     def test_ExtraLogData(self):
-        eld = self.logger._ExtraLogData()
+        eld = self.logger.logsetting.ExtraLogData()
         
         expect = {key : None for key in ["action", "values", "exception", "function", "tag"]}
         assert dict(eld._asdict()) == expect
@@ -141,26 +141,6 @@ class TestLoggerClassMethod_and_Val():
         assert Logger._attributes == tuple(["asctime", "levelname", "name", "function"
                                             , "action", "exception", "message", "tag", "values"])
         assert Logger._splitter == "==="
-
-def test_get_args():
-    def target(message, action, tag="aaa", values=False):
-        return None
-    expect = set(["message", "action", "tag", "values"])
-    assert _get_args(target) == expect
-    
-    class Bar():
-        def __init__(self, foo):
-            self.foo = foo
-        def target(self, message, action, tag="aaa", values=False):
-            return None
-    bar = Bar("foo")
-    assert _get_args(bar.target) == expect
-    
-def test_get_extra_attribs():
-    expect = set(['values', 'tag', 'function', 'exception', 'action'])
-    tar = getLogger("target_dummy")
-    
-    assert _get_extra_attribs(tar) == expect
     
 @pytest.mark.parametrize("attrib, expect"
                          , [(['values', 'tag', 'function', 'exception', 'action'], True)
