@@ -183,10 +183,40 @@ class Logger():
             return ret
         return wrap
         
-    def debug(self
+    def _debug(self
               , message = None
               , action = None
               , function = None
+              , tag = None
+              , values = None):
+        """debug level (for private use)
+
+        Parameters
+        ----------
+        message : str, optional
+        action : str, optional
+        function : str, optional
+            function name
+            , by default None
+        tag : str, optional
+        values : dict, optional
+
+        SeeAlso
+        -------
+        self.debug : API module
+        """
+        
+        f = get_funcname(2) if function is None else function
+        
+        extralogdata = self.logsetting.ExtraLogData(action = action
+                                                    , function = f
+                                                    , tag = tag
+                                                    , values = values)
+        self._logging(extralogdata, "debug", message)
+    
+    def debug(self
+              , message = None
+              , action = None
               , tag = None
               , values = None):
         """debug level
@@ -205,12 +235,7 @@ class Logger():
             - "ready" : the processing goes to standby
             , by default None
             
-        function : str, optional
-            function name
-            automatically completed if not specified
-            , by default None
-            
-        tag : [type], optional
+        tag : str, optional
             the following or None is recomended
             - "trace" : only for trace
             , by default None
@@ -220,15 +245,12 @@ class Logger():
             its values must be parseable
             , by default None
         """
-        
-        f = get_funcname(2) if function is None else function
-        
-        extralogdata = self.logsetting.ExtraLogData(action = action
-                                                    , function = f
-                                                    , tag = tag
-                                                    , values = values)
-        self._logging(extralogdata, "debug", message)
-        
+        self._debug(message=message
+                    , action=action
+                    , function=get_funcname(2)
+                    , tag = tag
+                    , values = values)
+    
     def info(self
              , message = None
              , action = None
