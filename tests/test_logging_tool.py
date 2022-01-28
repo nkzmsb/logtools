@@ -146,6 +146,14 @@ class TestLoggerClassMethod_and_Val():
         assert Logger._attributes == tuple(["asctime", "function", "message"])
         assert Logger._splitter == "~~~"
         
+    def test_makeformat_nondefault_work(self):
+        """デフォルト値の変更が本当に有効化されているか"""
+        new_attrib_tpl = tuple(["asctime", "levelname", "name", "message"])
+        new_splitter = "~~~"
+        Logger.makeformat(attributes=new_attrib_tpl, splitter=new_splitter)
+        assert Logger.makeformat().attributes == new_attrib_tpl
+        assert Logger.makeformat().splitter == new_splitter
+        
     def test_makeformat_raise(self):
         with pytest.raises(ConfigurationError):
             Logger.makeformat(attributes = tuple(["action", "foo"]))

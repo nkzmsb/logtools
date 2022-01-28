@@ -87,7 +87,31 @@ class Logger():
     _splitter = SPLITTER
     
     @classmethod
-    def makeformat(cls, attributes = _attributes, splitter = _splitter):
+    def makeformat(cls, attributes = None, splitter = None):
+        """フォーマットの確認・更新を行う
+
+        Parameters
+        ----------
+        attributes : tuple of str, optional
+            フォーマットの属性を変更したい場合に指定, by default None
+        splitter : str, optional
+            フォーマットの区切り文字を変更したい場合に指定, by default None
+
+        Returns
+        -------
+        LogSetting
+            フォーマット情報が格納されたLogSettingインスタンス
+
+        Raises
+        ------
+        ConfigurationError
+            不正なフォーマット属性が指定されている場合
+        """
+        if attributes is None:
+            attributes = cls._attributes
+        if splitter is None:
+            splitter = cls._splitter
+        
         if not _is_attribs_available(set(attributes), set(EXTRA_ATTRIBUTES)):
             raise ConfigurationError
         
@@ -354,7 +378,6 @@ class Logger():
         streamhandler_exists = False
         
         for hdlr in self.__logger.handlers:
-            print(type(hdlr))
             if type(hdlr) is logging.StreamHandler:
                 streamhandler_exists = True
                 
