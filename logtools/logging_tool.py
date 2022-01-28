@@ -87,7 +87,31 @@ class Logger():
     _splitter = SPLITTER
     
     @classmethod
-    def makeformat(cls, attributes = _attributes, splitter = _splitter):
+    def makeformat(cls, attributes = None, splitter = None):
+        """フォーマットの確認・更新を行う
+
+        Parameters
+        ----------
+        attributes : tuple of str, optional
+            フォーマットの属性を変更したい場合に指定, by default None
+        splitter : str, optional
+            フォーマットの区切り文字を変更したい場合に指定, by default None
+
+        Returns
+        -------
+        LogSetting
+            フォーマット情報が格納されたLogSettingインスタンス
+
+        Raises
+        ------
+        ConfigurationError
+            不正なフォーマット属性が指定されている場合
+        """
+        if attributes is None:
+            attributes = cls._attributes
+        if splitter is None:
+            splitter = cls._splitter
+        
         if not _is_attribs_available(set(attributes), set(EXTRA_ATTRIBUTES)):
             raise ConfigurationError
         
@@ -125,6 +149,7 @@ class Logger():
             self.__logger = None
             
         self.logsetting = Logger.makeformat()
+        self._has_addStreamHandler_been_called = False
             
         
     @property
@@ -158,10 +183,40 @@ class Logger():
             return ret
         return wrap
         
-    def debug(self
+    def _debug(self
               , message = None
               , action = None
               , function = None
+              , tag = None
+              , values = None):
+        """debug level (for private use)
+
+        Parameters
+        ----------
+        message : str, optional
+        action : str, optional
+        function : str, optional
+            function name
+            , by default None
+        tag : str, optional
+        values : dict, optional
+
+        SeeAlso
+        -------
+        self.debug : API module
+        """
+        
+        f = get_funcname(2) if function is None else function
+        
+        extralogdata = self.logsetting.ExtraLogData(action = action
+                                                    , function = f
+                                                    , tag = tag
+                                                    , values = values)
+        self._logging(extralogdata, "debug", message)
+    
+    def debug(self
+              , message = None
+              , action = None
               , tag = None
               , values = None):
         """debug level
@@ -180,12 +235,7 @@ class Logger():
             - "ready" : the processing goes to standby
             , by default None
             
-        function : str, optional
-            function name
-            automatically completed if not specified
-            , by default None
-            
-        tag : [type], optional
+        tag : str, optional
             the following or None is recomended
             - "trace" : only for trace
             , by default None
@@ -195,15 +245,12 @@ class Logger():
             its values must be parseable
             , by default None
         """
-        
-        f = get_funcname(2) if function is None else function
-        
-        extralogdata = self.logsetting.ExtraLogData(action = action
-                                                    , function = f
-                                                    , tag = tag
-                                                    , values = values)
-        self._logging(extralogdata, "debug", message)
-        
+        self._debug(message=message
+                    , action=action
+                    , function=get_funcname(2)
+                    , tag = tag
+                    , values = values)
+    
     def info(self
              , message = None
              , action = None
@@ -335,17 +382,35 @@ class Logger():
     def addHandler(self, hdlr):
         self.__logger.addHandler(hdlr)
     
-    def add_StreamHandler(self):
+    def add_StreamHandler(self) -> bool:
         """add StreamHandler with default format
+        
+        Returns
+        -------
+        bool
+            is_added
+            追加された場合にはTrue
         
         Notes
         -----
         - Jupyter等で使うときにgetLoggerした後にこれを呼び出すだけで使える
+        - この処理はハンドラにStreamHandlerが１つもsetされていない場合にのみ実行される
         """
-        formatter = logging.Formatter(self.logsetting.format)
-        hdlr = logging.StreamHandler()
-        hdlr.setFormatter(formatter)
-        self.addHandler(hdlr)    
+
+        streamhandler_exists = False
+        
+        for hdlr in self.__logger.handlers:
+            if type(hdlr) is logging.StreamHandler:
+                streamhandler_exists = True
+                
+        is_added = not(streamhandler_exists)
+        if is_added:
+            formatter = logging.Formatter(self.logsetting.format)
+            hdlr = logging.StreamHandler()
+            hdlr.setFormatter(formatter)
+            self.addHandler(hdlr)
+            
+        return is_added
         
     def _logging(self, extralogdata, level, message = None):
         """ExtraLogDataの内容をロギングする

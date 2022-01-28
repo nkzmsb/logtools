@@ -56,6 +56,13 @@ class TestLogger():
 
     def teardown_method(self, method):
         print('method={}'.format(method.__name__))
+        
+        # logging.Loggerは名前によってグローバルに情報共有されているため、
+        # logtools.Loggerインスタンスやlogtools.Logger.__loggerを削除しても
+        # メモリ上に残り続ける
+        # ハンドラのテストのコンタミをなくすためにはLoggerの名前を変更するか、
+        # ハンドラを強制的に初期化するか。今回は後者を選択した。
+        self.logger._Logger__logger.handlers = []
         del self.logger
         
     def test_name_prop(self):
@@ -75,6 +82,13 @@ class TestLogger():
         
         assert added_handler.formatter._fmt == "%(asctime)s===%(levelname)s===%(name)s===%(function)s===%(action)s===%(exception)s===%(message)s===%(tag)s===%(values)s"
     
+    def test_add_StreamHandler_manytime(self):
+        """add_StreamHandlerはLoggerに1つもStreamHandlerが存在しない場合にのみ実行される"""
+        
+        assert self.logger.add_StreamHandler()
+        for _ in range(3):
+            assert not(self.logger.add_StreamHandler())
+
     @pytest.mark.skip(reason="ログのテストの仕方を要確認")
     def test_logging(self, capture):
         ...
@@ -131,6 +145,14 @@ class TestLoggerClassMethod_and_Val():
         assert dict(extralogdata._asdict()) == expect
         assert Logger._attributes == tuple(["asctime", "function", "message"])
         assert Logger._splitter == "~~~"
+        
+    def test_makeformat_nondefault_work(self):
+        """デフォルト値の変更が本当に有効化されているか"""
+        new_attrib_tpl = tuple(["asctime", "levelname", "name", "message"])
+        new_splitter = "~~~"
+        Logger.makeformat(attributes=new_attrib_tpl, splitter=new_splitter)
+        assert Logger.makeformat().attributes == new_attrib_tpl
+        assert Logger.makeformat().splitter == new_splitter
         
     def test_makeformat_raise(self):
         with pytest.raises(ConfigurationError):
