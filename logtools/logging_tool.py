@@ -125,6 +125,7 @@ class Logger():
             self.__logger = None
             
         self.logsetting = Logger.makeformat()
+        self._has_addStreamHandler_been_called = False
             
         
     @property
@@ -335,17 +336,36 @@ class Logger():
     def addHandler(self, hdlr):
         self.__logger.addHandler(hdlr)
     
-    def add_StreamHandler(self):
+    def add_StreamHandler(self) -> bool:
         """add StreamHandler with default format
+        
+        Returns
+        -------
+        bool
+            is_added
+            追加された場合にはTrue
         
         Notes
         -----
         - Jupyter等で使うときにgetLoggerした後にこれを呼び出すだけで使える
+        - この処理はハンドラにStreamHandlerが１つもsetされていない場合にのみ実行される
         """
-        formatter = logging.Formatter(self.logsetting.format)
-        hdlr = logging.StreamHandler()
-        hdlr.setFormatter(formatter)
-        self.addHandler(hdlr)    
+
+        streamhandler_exists = False
+        
+        for hdlr in self.__logger.handlers:
+            print(type(hdlr))
+            if type(hdlr) is logging.StreamHandler:
+                streamhandler_exists = True
+                
+        is_added = not(streamhandler_exists)
+        if is_added:
+            formatter = logging.Formatter(self.logsetting.format)
+            hdlr = logging.StreamHandler()
+            hdlr.setFormatter(formatter)
+            self.addHandler(hdlr)
+            
+        return is_added
         
     def _logging(self, extralogdata, level, message = None):
         """ExtraLogDataの内容をロギングする
