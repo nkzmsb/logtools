@@ -89,6 +89,16 @@ class TestLogger():
         for _ in range(3):
             assert not(self.logger.add_StreamHandler())
 
+    def test_trace_deco(self, caplog):
+        @self.logger.trace_deco
+        def decorated():
+            pass
+        
+        caplog.set_level(logging.DEBUG)
+        decorated()
+        
+        assert caplog.records[0].function[-9:] == "decorated"
+
     @pytest.mark.skip(reason="ログのテストの仕方を要確認")
     def test_logging(self, capture):
         ...
