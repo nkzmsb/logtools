@@ -1,3 +1,4 @@
+"""logging_toolで作成したログを扱いやすいテーブルに変換する"""
 
 from __future__ import annotations # python3.9以降では不要
 
@@ -9,6 +10,10 @@ import pandas as pd
 
 from logtools.logging_tool import Logger
 
+
+##########
+# Private
+##########
 def keymake(k_str, head_str = None):
     if head_str:
         return head_str + "-" + k_str
@@ -113,16 +118,17 @@ def breakdown_values(values):
 
 
 def log_to_dict(unitlog_str, attributes:tuple, splitter:str)->dict:
-    """log文字列を辞書に変換する
+    """log文字列（1件のログ）を辞書に変換する
 
     Parameters
     ----------
     unitlog_str : str
-        1つのログ
+        1件のログ
     attributes : tpl of str
-        ログの項目
+        ログ属性のタプル
+        ログと内容・順序の整合性が取れている必要がある
     splitter : str
-        ログの各項目の仕切り文字
+        ログの各属性間を表す仕切り文字
 
     Returns
     -------
@@ -160,7 +166,10 @@ def log_to_dict(unitlog_str, attributes:tuple, splitter:str)->dict:
     return ret_dic
 
 def logfile_converter(filepath, attributes:tuple, splitter:str)->list[dict]:
-    # log_to_dict()をループ
+    """ログファイルを1件ごとに辞書にしたリストを作成する
+    
+    log_to_dict()をループする
+    """
 
     with open(filepath,"r") as f:
         log_ls = []
@@ -173,8 +182,20 @@ def logfile_converter(filepath, attributes:tuple, splitter:str)->list[dict]:
 # Public
 ##########
 class LogToDf():
-    # ユーザーが利用するのは基本的にこのクラスのみ
+    """logging_toolで作成したログを扱いやすいテーブルに変換する
+    """
     def __init__(self, attributes:tuple = None, splitter:str = None):
+        """
+
+        Parameters
+        ----------
+        attributes : tuple of str, optional
+            ログ属性のタプル, by default None
+            Noneの場合は、loggint_tool.ATTRIBUTESが間接的に設定される
+        splitter : str, optional
+            ログの各属性間を表す仕切り文字, by default None
+            Noneの場合は、loggint_tool.SPLITTERが間接的に設定される
+        """
         format = Logger.makeformat() # 使うかどうかわからないけれどとりあえず取得しておく
         
         if attributes is None:
@@ -187,7 +208,19 @@ class LogToDf():
         else:
             self.splitter = splitter
         
-    def convert(self, logfilepath_ls):
+    def convert(self, logfilepath_ls : list):
+        """変換処理を行う
+
+        Parameters
+        ----------
+        logfilepath_ls : list of path
+            処理するログファイルのパスのリスト
+
+        Returns
+        -------
+        pandas.DataFrame
+            ログが集約されたテーブル
+        """
         df_ls = []
         for path in logfilepath_ls:
             df_ls.append(pd.DataFrame(logfile_converter(path, self.attributes, self.splitter)))
@@ -196,6 +229,7 @@ class LogToDf():
         return log_df
     
     def _sort_by_time(self, df):
+        """asctimeで並び変える"""
         try:
             df.sort_values('asctime', inplace = True)
         except KeyError:

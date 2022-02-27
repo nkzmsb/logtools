@@ -133,6 +133,12 @@ class TestLogToDf():
         del self.target
         
     def test_convert(self, logfile_dir):
+        """
+
+        Notes
+        ----------
+        - logfile1の方が先にログされているので、asctimeでソートしないとパスしない
+        """
         fn1 = str(logfile_dir.join('logfile1.log'))
         fn2 = str(logfile_dir.join('logfile2.log'))
         log_df = self.target.convert([fn2, fn1])
@@ -144,6 +150,7 @@ class TestLogToDf():
             assert tar == expect
             
     def test_sort_exception(self):
+        """asctimeが属性に含まれない場合にはUserWarning"""
         dummy_df = pd.DataFrame({"col1":[4,2,5], "col2":[5,6,7]}) # df does not have "asctime"
         
         with pytest.warns(UserWarning) as record:

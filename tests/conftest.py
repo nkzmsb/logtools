@@ -27,7 +27,7 @@ def invalid_short_log():
 
 @pytest.fixture(scope='session')
 def logfile_dir(tmpdir_factory):
-    """
+    """一時ディレクトリに、2種類のログファイルを生成する
 
     Returns
     -------
