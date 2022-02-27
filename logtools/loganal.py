@@ -182,7 +182,7 @@ def logfile_converter(filepath)->list[dict]:
     return log_ls
 
 
-class LogData():
+class LogToDf():
     def __init__(self, logfilepath_ls):
         """
         Parameters
@@ -207,7 +207,7 @@ class LogData():
 if __name__ == "__main__":
     renamefiles("temp", "templog")
     
-    logdata = LogData(["temp/templog_1.log", "temp/templog_2.log"])
-    log_df = logdata.log_df
+    LogToDf = LogToDf(["temp/templog_1.log", "temp/templog_2.log"])
+    log_df = LogToDf.log_df
     
     print(log_df)

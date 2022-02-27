@@ -118,7 +118,7 @@ def test_logfile_converter():
     ...
 
 @pytest.mark.skip(reason="面倒なので未実装")
-class TestLogData():
+class TestLogToDf():
     ...
 
 # [ToDo]以下の項目でExceptionのテストが必要
