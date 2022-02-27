@@ -27,7 +27,7 @@ $ tar -xzvf .\logtools-0.0.11.tar.gz
 ## requirements
 以下の環境をインストール時に手動で構築する必要がある。
 - python >= 3.7 : 辞書の並び情報とdataclassesを使用
-- pandas
+- pandas : ログを行うだけの場合(loganalを利用しない場合)は不要
 
 
 # logging_tool : ログを行う
@@ -230,30 +230,33 @@ for w in wa:
 
 
 # loganal:ログを解析する
-**loganalは次回アップデートで大幅に変更の可能性あり**
-### renamefiles
-logging.handlers.RotatingFileHandlerのbackupCount引数を指定して、ログファイルを生成した場合、複数のファイルが生成されるが、ファイル名の最後に".#"というファイル番号を示す文字列が付加されてしまう。
-これを"*_#.log"というファイル名に変更する。  
-【Note】RotatingFileHandlerのfilename引数には、"*.log"というファイル名を指定すること。（内部で".log"という文字列をキーにして解析するため）
+## LogToDfクラス
+上記logtools.Loggerで取得した複数のログファイルを、pandas.DataFrameの形に集約・変換する。  
+インスタンス化の際に、ログのフォーマット情報として、属性情報(attributes)と区切り文字情報(spritter)を指定する。
+これらの値を指定しない場合は、logtools.Logger.makeformat()で取得されるフォーマット情報が用いられる。  
+実際の変換作業は、LogToDf.convert()クラスで実施される。引数には集約・変換したいログファイルのパスのリストを指定する。出力されるDataFrameはログの属性に含まれると仮定されている"asctime"で昇順ソートされる。
 
 ### 利用方法
-loganalの中で使用するのはrenamefiles関数と、LogToDfクラスである。
 ```python
-import glob
-import os
 
-import pandas as pd
+from logtools.loganal import LogToDf
 
-import logtools
+# デフォルトのフォーマットを用いて作成したログファイルであれば、
+# LogToDfの引数は不要
+attrs = ("asctime", "levelname", "levelno", "message")
+split_by = "---"
+log_to_df = LogToDf(attributes = attrs, splitter = split_by)
 
-# ここではサンプルコードのためrenamefilesを解析用のプログラムに組み込んでいるが、
-# renamefilesは1度実行すれば十分なので、独立の処理とすべき
-logtools.renamefiles("./logfolder", "renamelog")
+logfile_ls = ["./log/foo.log", "./log/foo.log2"]
 
-logfile_ls = [os.path.abspath(path) for path in glob.glob("./logfolder/*.log")]
+log_df = log_to_df.convert(logfile_ls)
 
-data = logtools.LogToDf(logfile_ls)
-
-df = data.log_df
+log_df.to_csv("log.csv", index=False)
 ```
 
+### 使用上の注意
+- 出力されたDataFrameにconvert_exception列が付加され、そこに"values error"や"values warning"が
+入っていた場合、そのログの"values"の値が、正しく処理できなかった可能性があるので確認が必要。
+このようなログがされている場合には、logtools.Loggerの使い方を誤っている可能性が高い。
+- LogToDfに指定する属性や区切り文字は、処理するログファイルのものを指定すること。
+これと一致していないと、出力DataFrameも正しく作成されない。
