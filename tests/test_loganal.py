@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from logtools.loganal import breakdown_values, expand_dict, keymake, log_to_dict, newlogfilename, renamefiles
+from logtools.loganal import breakdown_values, expand_dict, keymake, log_to_dict
 from logtools.logging_tool import Logger
 
 ATTRIBUTES = Logger().logsetting.attributes
@@ -116,35 +116,6 @@ def test_log_to_dict_formaterror(recwarn, invalid_short_log):
 def test_logfile_converter():
     # データとexpectの準備が面倒くさい
     ...
-
-def test_newlogfilename():
-    assert newlogfilename("abc.log.4", "opq") == "opq_4.log"
-    assert newlogfilename("abc.log", "opq") == "opq_0.log"
-    assert newlogfilename("/bbb/abc.log.4", "opq") == "opq_4.log"
-    assert newlogfilename("/bbb/abc.log", "opq") == "opq_0.log"
-    
-
-def test_renamefiles(tmpdir):
-    # 一時フォルダにlogdata.log, logdata.log.1, logdata.log.2を準備する
-    # 処理後に、after_0.log, after_1.log, after_2.logになっていることを確認する
-    
-    f1 = tmpdir.join("abc.log")
-    f2 = tmpdir.join("abc.log.1")
-    f3 = tmpdir.join("abc.log.2")
-    f1.write("I am f1")
-    f2.write("I am f2")
-    f3.write("I am f3")
-    
-    ret = renamefiles(tmpdir, "after")
-    
-    res = set([os.path.abspath(p) for p in tmpdir.listdir()])
-    expect = set([os.path.join(tmpdir, "after_0.log")
-                  , os.path.join(tmpdir, "after_1.log")
-                  , os.path.join(tmpdir, "after_2.log")])
-    
-    assert res == expect
-    assert set(ret) == expect
-    
 
 @pytest.mark.skip(reason="面倒なので未実装")
 class TestLogData():
