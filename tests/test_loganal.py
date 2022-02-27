@@ -1,12 +1,16 @@
-import os
 
 import pytest
 
 from logtools.loganal import breakdown_values, expand_dict, keymake, log_to_dict
 from logtools.logging_tool import Logger
 
-ATTRIBUTES = Logger().logsetting.attributes
+@pytest.fixture(scope="class")
+def default_attributes():
+    return Logger.makeformat().attributes
 
+@pytest.fixture(scope="class")
+def default_splitter():
+    return Logger.makeformat().splitter
 
 @pytest.mark.parametrize("head, expect"
                          , [(None, "key"), ("h", "h-key")])
@@ -83,7 +87,7 @@ def test_breakdown_values_warning_SE(recwarn):
     assert str(w.message)==("values is not valid")
 
 
-def test_log_to_dict(valid_typ_log):
+def test_log_to_dict(valid_typ_log, default_attributes, default_splitter):
     expect = {"asctime":"2021-05-09 16:30:12,093"
               , "levelname" : "INFO"
               , "name" : "DUMMYLOG"
@@ -99,11 +103,11 @@ def test_log_to_dict(valid_typ_log):
               , "nest-BB-tag" : True
               }
     
-    assert log_to_dict(valid_typ_log) == expect
+    assert log_to_dict(valid_typ_log, default_attributes, default_splitter) == expect
     
-def test_log_to_dict_formaterror(recwarn, invalid_short_log):
+def test_log_to_dict_formaterror(recwarn, invalid_short_log, default_attributes, default_splitter):
     
-    ret = log_to_dict(invalid_short_log)
+    ret = log_to_dict(invalid_short_log, default_attributes, default_splitter)
     
     assert len(recwarn) == 1
     assert ret == {"values" : invalid_short_log, "convert_exception" : "strange format"}

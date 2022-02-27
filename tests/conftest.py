@@ -1,13 +1,6 @@
 # テスト用のダミーログファイル生成
 
-import logging
-
 import pytest
-from testfixtures import LogCapture
-
-from logtools.logging_tool import Logger
-
-FORMATTER = Logger().logsetting.format
 
 @pytest.fixture(scope="module")
 def valid_typ_log():

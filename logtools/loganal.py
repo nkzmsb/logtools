@@ -145,18 +145,18 @@ def log_to_dict(unitlog_str, attributes:tuple, splitter:str)->dict:
     # ログを成分に分解する
     # splitの引数に最大分割回数を設定することもできるが、
     # フォーマット異常検知のためにそれは行わない
-    log_ls = unitlog_str.split(splitter_str)
+    log_ls = unitlog_str.split(splitter)
     
     # [FutureWork] 要検討
     # フォーマット異常を検知する方法がlog_lsの長さを見るしかない
     # これが限界な気もするが...
-    if len(log_ls) != len(attributes_tpl):
+    if len(log_ls) != len(attributes):
         # warning
         warnings.warn("strange format")
         return {"values" : unitlog_str, "convert_exception" : "strange format"}
     
     ret_dic = {}
-    for k,v in zip(attributes_tpl[:-1], log_ls[:-1]):
+    for k,v in zip(attributes[:-1], log_ls[:-1]):
         try:
             # 可能なものは型評価
             v_lit = ast.literal_eval(v)
