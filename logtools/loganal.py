@@ -1,31 +1,24 @@
+"""logging_toolで作成したログを扱いやすいテーブルに変換する"""
 
 from __future__ import annotations # python3.9以降では不要
 
 import ast
-import copy
-import glob
-import os
-import re
 import warnings
 
 
 import pandas as pd
 
 from logtools.logging_tool import Logger
-# from logging_tool import Logger
 
-logger = Logger()
 
-ATTRIBUTES = logger.logsetting.attributes
-FORMATTER = logger.logsetting.format
-SPLITTER = logger.logsetting.splitter
-
+##########
+# Private
+##########
 def keymake(k_str, head_str = None):
     if head_str:
         return head_str + "-" + k_str
     else:
         return k_str
-
 
 def expand_dict(dic, head_str = None):
     """dicの内容を展開する
@@ -124,17 +117,18 @@ def breakdown_values(values):
     return res_dic
 
 
-def log_to_dict(unitlog_str, attributes_tpl = ATTRIBUTES, splitter_str = SPLITTER)->dict:
-    """log文字列を辞書に変換する
+def log_to_dict(unitlog_str, attributes:tuple, splitter:str)->dict:
+    """log文字列（1件のログ）を辞書に変換する
 
     Parameters
     ----------
     unitlog_str : str
-        1つのログ
-    attributes_tpl : tpl of str, optional
-        ログの項目, by default ATTRIBUTES
-    splitter_str : str, optional
-        ログの各項目の仕切り文字, by default SPLITTER
+        1件のログ
+    attributes : tpl of str
+        ログ属性のタプル
+        ログと内容・順序の整合性が取れている必要がある
+    splitter : str
+        ログの各属性間を表す仕切り文字
 
     Returns
     -------
@@ -145,18 +139,18 @@ def log_to_dict(unitlog_str, attributes_tpl = ATTRIBUTES, splitter_str = SPLITTE
     # ログを成分に分解する
     # splitの引数に最大分割回数を設定することもできるが、
     # フォーマット異常検知のためにそれは行わない
-    log_ls = unitlog_str.split(splitter_str)
+    log_ls = unitlog_str.split(splitter)
     
     # [FutureWork] 要検討
     # フォーマット異常を検知する方法がlog_lsの長さを見るしかない
     # これが限界な気もするが...
-    if len(log_ls) != len(attributes_tpl):
+    if len(log_ls) != len(attributes):
         # warning
         warnings.warn("strange format")
         return {"values" : unitlog_str, "convert_exception" : "strange format"}
     
     ret_dic = {}
-    for k,v in zip(attributes_tpl[:-1], log_ls[:-1]):
+    for k,v in zip(attributes[:-1], log_ls[:-1]):
         try:
             # 可能なものは型評価
             v_lit = ast.literal_eval(v)
@@ -171,97 +165,78 @@ def log_to_dict(unitlog_str, attributes_tpl = ATTRIBUTES, splitter_str = SPLITTE
     
     return ret_dic
 
-def logfile_converter(filepath)->list[dict]:
-    # log_to_dict()をループ
+def logfile_converter(filepath, attributes:tuple, splitter:str)->list[dict]:
+    """ログファイルを1件ごとに辞書にしたリストを作成する
+    
+    log_to_dict()をループする
+    """
 
     with open(filepath,"r") as f:
         log_ls = []
         for line in f:
-            log_ls.append(log_to_dict(line.replace("\n", "")))
+            log_ls.append(log_to_dict(line.replace("\n", ""), attributes, splitter))
     
     return log_ls
-    
-def newlogfilename(prename, base):
-    match = re.search(r'\.log.+', prename)
-    if match:
-        num = match.group()[5:]
-    else:
-        num = "0"
-    
-    return base + "_" + num + ".log"
-        
 
-def renamefiles(dirpath, base):
-    """RotatingFileHandlerで作成されたlogファイル名を修正する
-    
-    dirpathディレクトリ内の"*.log.#"という名前のファイルを
-    "[base]_#.log"という名前に変更する。
-    *は任意の文字列、#は番号（任意の文字列でも動作）
-
-    Parameters
-    ----------
-    dirpath : path
-        logファイルが収められているディレクトリのパス
-    base : str
-        修正後ファイルの名前のベース部分
-
-    Returns
-    -------
-    list of path
-        修正後のファイルパスのリスト
-        
-    # [FutureWork]
-    # - ディレクトリにややこしい名前のファイルも存在する場合に対応する
-    # - 2回以上実行すると変なファイル名になってしまう
-    # - logファイルが見つからない場合のException
+##########
+# Public
+##########
+class LogToDf():
+    """logging_toolで作成したログを扱いやすいテーブルに変換する
     """
-    
-    filepath_ls = glob.glob(os.path.join(os.path.abspath(dirpath),"*"))
-    filename_ls = [os.path.basename(p) for p in filepath_ls]
-    
-    change_ls = [] #(変更前(パス名), 変更後(単独ファイル名))のタプルのリスト
-    for f in filename_ls:
-        match = re.match(r'.*\.log.*', f)
-        if match:
-            tar = match.group()
-            change_ls.append((tar, newlogfilename(tar, base)))
-    
-    tar_ls = []
-    for change in change_ls:
-        tar = os.path.join(os.path.abspath(dirpath), change[1])
-        tar_ls.append(tar)
-        os.rename(os.path.join(os.path.abspath(dirpath), change[0])
-                  , tar)
-        
-    return tar_ls
-
-
-class LogData():
-    def __init__(self, logfilepath_ls):
+    def __init__(self, attributes:tuple = None, splitter:str = None):
         """
+
+        Parameters
+        ----------
+        attributes : tuple of str, optional
+            ログ属性のタプル, by default None
+            Noneの場合は、loggint_tool.ATTRIBUTESが間接的に設定される
+        splitter : str, optional
+            ログの各属性間を表す仕切り文字, by default None
+            Noneの場合は、loggint_tool.SPLITTERが間接的に設定される
+        """
+        format = Logger.makeformat() # 使うかどうかわからないけれどとりあえず取得しておく
+        
+        if attributes is None:
+            self.attributes = format.attributes
+        else:
+            self.attributes = attributes
+            
+        if splitter is None:
+            self.splitter = format.splitter
+        else:
+            self.splitter = splitter
+        
+    def convert(self, logfilepath_ls : list):
+        """変換処理を行う
+
         Parameters
         ----------
         logfilepath_ls : list of path
-            logファイルのパスのリスト
+            処理するログファイルのパスのリスト
+
+        Returns
+        -------
+        pandas.DataFrame
+            ログが集約されたテーブル
         """
         df_ls = []
         for path in logfilepath_ls:
-            df_ls.append(pd.DataFrame(logfile_converter(path)))
-        self._log_df = pd.concat(df_ls, ignore_index=True)
-        
-    @property
-    def log_df(self):
-        return copy.deepcopy(self._log_df)
-        
+            df_ls.append(pd.DataFrame(logfile_converter(path, self.attributes, self.splitter)))
+        log_df = pd.concat(df_ls, ignore_index=True)
+        log_df = self._sort_by_time(log_df)
+        return log_df
+    
+    def _sort_by_time(self, df):
+        """asctimeで並び変える"""
+        try:
+            df.sort_values('asctime', inplace = True)
+        except KeyError:
+            warnings.warn("log data is not sorted.")
+        return df
+    
     # [FutureWork]
     # def export_db(self):
     #     ...
     
-    
-if __name__ == "__main__":
-    renamefiles("temp", "templog")
-    
-    logdata = LogData(["temp/templog_1.log", "temp/templog_2.log"])
-    log_df = logdata.log_df
-    
-    print(log_df)

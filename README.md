@@ -237,7 +237,7 @@ logging.handlers.RotatingFileHandlerのbackupCount引数を指定して、ログ
 【Note】RotatingFileHandlerのfilename引数には、"*.log"というファイル名を指定すること。（内部で".log"という文字列をキーにして解析するため）
 
 ### 利用方法
-loganalの中で使用するのはrenamefiles関数と、LogDataクラスである。
+loganalの中で使用するのはrenamefiles関数と、LogToDfクラスである。
 ```python
 import glob
 import os
@@ -252,7 +252,7 @@ logtools.renamefiles("./logfolder", "renamelog")
 
 logfile_ls = [os.path.abspath(path) for path in glob.glob("./logfolder/*.log")]
 
-data = logtools.LogData(logfile_ls)
+data = logtools.LogToDf(logfile_ls)
 
 df = data.log_df
 ```

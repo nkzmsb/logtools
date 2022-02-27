@@ -1,12 +1,18 @@
-import os
 
+import pandas as pd
 import pytest
 
-from logtools.loganal import breakdown_values, expand_dict, keymake, log_to_dict, newlogfilename, renamefiles
+from logtools.loganal import LogToDf
+from logtools.loganal import breakdown_values, expand_dict, keymake, log_to_dict, logfile_converter
 from logtools.logging_tool import Logger
 
-ATTRIBUTES = Logger().logsetting.attributes
+@pytest.fixture(scope="class")
+def default_attributes():
+    return Logger.makeformat().attributes
 
+@pytest.fixture(scope="class")
+def default_splitter():
+    return Logger.makeformat().splitter
 
 @pytest.mark.parametrize("head, expect"
                          , [(None, "key"), ("h", "h-key")])
@@ -83,7 +89,7 @@ def test_breakdown_values_warning_SE(recwarn):
     assert str(w.message)==("values is not valid")
 
 
-def test_log_to_dict(valid_typ_log):
+def test_log_to_dict(valid_typ_log, default_attributes, default_splitter):
     expect = {"asctime":"2021-05-09 16:30:12,093"
               , "levelname" : "INFO"
               , "name" : "DUMMYLOG"
@@ -99,11 +105,11 @@ def test_log_to_dict(valid_typ_log):
               , "nest-BB-tag" : True
               }
     
-    assert log_to_dict(valid_typ_log) == expect
+    assert log_to_dict(valid_typ_log, default_attributes, default_splitter) == expect
     
-def test_log_to_dict_formaterror(recwarn, invalid_short_log):
+def test_log_to_dict_formaterror(recwarn, invalid_short_log, default_attributes, default_splitter):
     
-    ret = log_to_dict(invalid_short_log)
+    ret = log_to_dict(invalid_short_log, default_attributes, default_splitter)
     
     assert len(recwarn) == 1
     assert ret == {"values" : invalid_short_log, "convert_exception" : "strange format"}
@@ -112,43 +118,47 @@ def test_log_to_dict_formaterror(recwarn, invalid_short_log):
     assert w.category(UserWarning)
     assert str(w.message)==("strange format")
 
-@pytest.mark.skip(reason="面倒なので未実装")
-def test_logfile_converter():
-    # データとexpectの準備が面倒くさい
-    ...
+def test_logfile_converter(logfile_dir, default_attributes, default_splitter):
+    log_ls = logfile_converter(logfile_dir.join('logfile1.log'), default_attributes, default_splitter)
+    
+    assert log_ls[0]["message"] == "log from logger1 No.1"
 
-def test_newlogfilename():
-    assert newlogfilename("abc.log.4", "opq") == "opq_4.log"
-    assert newlogfilename("abc.log", "opq") == "opq_0.log"
-    assert newlogfilename("/bbb/abc.log.4", "opq") == "opq_4.log"
-    assert newlogfilename("/bbb/abc.log", "opq") == "opq_0.log"
-    
+class TestLogToDf():
+    def setup_method(self,method):
+        print('method={}'.format(method.__name__))
+        self.target = LogToDf()
 
-def test_renamefiles(tmpdir):
-    # 一時フォルダにlogdata.log, logdata.log.1, logdata.log.2を準備する
-    # 処理後に、after_0.log, after_1.log, after_2.logになっていることを確認する
-    
-    f1 = tmpdir.join("abc.log")
-    f2 = tmpdir.join("abc.log.1")
-    f3 = tmpdir.join("abc.log.2")
-    f1.write("I am f1")
-    f2.write("I am f2")
-    f3.write("I am f3")
-    
-    ret = renamefiles(tmpdir, "after")
-    
-    res = set([os.path.abspath(p) for p in tmpdir.listdir()])
-    expect = set([os.path.join(tmpdir, "after_0.log")
-                  , os.path.join(tmpdir, "after_1.log")
-                  , os.path.join(tmpdir, "after_2.log")])
-    
-    assert res == expect
-    assert set(ret) == expect
-    
+    def teardown_method(self, method):
+        print('method={}'.format(method.__name__))
+        del self.target
+        
+    def test_convert(self, logfile_dir):
+        """
 
-@pytest.mark.skip(reason="面倒なので未実装")
-class TestLogData():
-    ...
+        Notes
+        ----------
+        - logfile1の方が先にログされているので、asctimeでソートしないとパスしない
+        """
+        fn1 = str(logfile_dir.join('logfile1.log'))
+        fn2 = str(logfile_dir.join('logfile2.log'))
+        log_df = self.target.convert([fn2, fn1])
+        
+        expect_message = ["log from logger1 No.1", "log from logger1 No.2"
+                          , "log from logger2 No.1", "log from logger2 No.2"]
+        
+        for tar, expect in zip(log_df["message"], expect_message):
+            assert tar == expect
+            
+    def test_sort_exception(self):
+        """asctimeが属性に含まれない場合にはUserWarning"""
+        dummy_df = pd.DataFrame({"col1":[4,2,5], "col2":[5,6,7]}) # df does not have "asctime"
+        
+        with pytest.warns(UserWarning) as record:
+            self.target._sort_by_time(dummy_df)
+
+        assert len(record) == 1
+        assert record[0].message.args[0] == "log data is not sorted."
+        
 
 # [ToDo]以下の項目でExceptionのテストが必要
 # Warning
