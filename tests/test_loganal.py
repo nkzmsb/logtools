@@ -1,7 +1,8 @@
 
 import pytest
 
-from logtools.loganal import breakdown_values, expand_dict, keymake, log_to_dict
+from logtools.loganal import LogToDf
+from logtools.loganal import breakdown_values, expand_dict, keymake, log_to_dict, logfile_converter
 from logtools.logging_tool import Logger
 
 @pytest.fixture(scope="class")
@@ -116,14 +117,31 @@ def test_log_to_dict_formaterror(recwarn, invalid_short_log, default_attributes,
     assert w.category(UserWarning)
     assert str(w.message)==("strange format")
 
-@pytest.mark.skip(reason="面倒なので未実装")
-def test_logfile_converter():
-    # データとexpectの準備が面倒くさい
-    ...
+def test_logfile_converter(logfile_dir, default_attributes, default_splitter):
+    log_ls = logfile_converter(logfile_dir.join('logfile1.log'), default_attributes, default_splitter)
+    
+    assert log_ls[0]["message"] == "log from logger1 No.1"
 
-@pytest.mark.skip(reason="面倒なので未実装")
 class TestLogToDf():
-    ...
+    def setup_method(self,method):
+        print('method={}'.format(method.__name__))
+        self.target = LogToDf()
+
+    def teardown_method(self, method):
+        print('method={}'.format(method.__name__))
+        del self.target
+        
+    def test_convert(self, logfile_dir):
+        fn1 = str(logfile_dir.join('logfile1.log'))
+        fn2 = str(logfile_dir.join('logfile2.log'))
+        log_df = self.target.convert([fn1, fn2])
+        
+        expect_message = ["log from logger1 No.1", "log from logger1 No.2"
+                          , "log from logger2 No.1", "log from logger2 No.2"]
+        
+        for tar, expect in zip(log_df["message"], expect_message):
+            assert tar == expect
+        
 
 # [ToDo]以下の項目でExceptionのテストが必要
 # Warning

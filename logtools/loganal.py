@@ -177,7 +177,7 @@ def logfile_converter(filepath, attributes:tuple, splitter:str)->list[dict]:
     with open(filepath,"r") as f:
         log_ls = []
         for line in f:
-            log_ls.append(log_to_dict(line.replace("\n", "")))
+            log_ls.append(log_to_dict(line.replace("\n", ""), attributes, splitter))
     
     return log_ls
 
@@ -202,10 +202,15 @@ class LogToDf():
     def convert(self, logfilepath_ls):
         df_ls = []
         for path in logfilepath_ls:
-            df_ls.append(pd.DataFrame(logfile_converter(path)))
+            df_ls.append(pd.DataFrame(logfile_converter(path, self.attributes, self.splitter)))
         log_df = pd.concat(df_ls, ignore_index=True)
+        log_df = self._sort_by_time(log_df)
         return log_df
-        
+    
+    def _sort_by_time(self, df):
+        ...
+        return df
+    
     # [FutureWork]
     # def export_db(self):
     #     ...
