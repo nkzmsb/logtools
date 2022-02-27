@@ -208,7 +208,10 @@ class LogToDf():
         return log_df
     
     def _sort_by_time(self, df):
-        ...
+        try:
+            df.sort_values('asctime', inplace = True)
+        except KeyError:
+            warnings.warn("log data is not sorted.")
         return df
     
     # [FutureWork]

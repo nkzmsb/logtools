@@ -1,4 +1,5 @@
 
+import pandas as pd
 import pytest
 
 from logtools.loganal import LogToDf
@@ -134,13 +135,22 @@ class TestLogToDf():
     def test_convert(self, logfile_dir):
         fn1 = str(logfile_dir.join('logfile1.log'))
         fn2 = str(logfile_dir.join('logfile2.log'))
-        log_df = self.target.convert([fn1, fn2])
+        log_df = self.target.convert([fn2, fn1])
         
         expect_message = ["log from logger1 No.1", "log from logger1 No.2"
                           , "log from logger2 No.1", "log from logger2 No.2"]
         
         for tar, expect in zip(log_df["message"], expect_message):
             assert tar == expect
+            
+    def test_sort_exception(self):
+        dummy_df = pd.DataFrame({"col1":[4,2,5], "col2":[5,6,7]}) # df does not have "asctime"
+        
+        with pytest.warns(UserWarning) as record:
+            self.target._sort_by_time(dummy_df)
+
+        assert len(record) == 1
+        assert record[0].message.args[0] == "log data is not sorted."
         
 
 # [ToDo]以下の項目でExceptionのテストが必要
