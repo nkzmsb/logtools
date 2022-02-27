@@ -2,30 +2,18 @@
 from __future__ import annotations # python3.9以降では不要
 
 import ast
-import copy
-import glob
-import os
-import re
 import warnings
 
 
 import pandas as pd
 
 from logtools.logging_tool import Logger
-# from logging_tool import Logger
-
-logger = Logger()
-
-ATTRIBUTES = logger.logsetting.attributes
-FORMATTER = logger.logsetting.format
-SPLITTER = logger.logsetting.splitter
 
 def keymake(k_str, head_str = None):
     if head_str:
         return head_str + "-" + k_str
     else:
         return k_str
-
 
 def expand_dict(dic, head_str = None):
     """dicの内容を展開する
