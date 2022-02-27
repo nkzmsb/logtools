@@ -124,17 +124,17 @@ def breakdown_values(values):
     return res_dic
 
 
-def log_to_dict(unitlog_str, attributes_tpl = ATTRIBUTES, splitter_str = SPLITTER)->dict:
+def log_to_dict(unitlog_str, attributes:tuple, splitter:str)->dict:
     """log文字列を辞書に変換する
 
     Parameters
     ----------
     unitlog_str : str
         1つのログ
-    attributes_tpl : tpl of str, optional
-        ログの項目, by default ATTRIBUTES
-    splitter_str : str, optional
-        ログの各項目の仕切り文字, by default SPLITTER
+    attributes : tpl of str
+        ログの項目
+    splitter : str
+        ログの各項目の仕切り文字
 
     Returns
     -------
@@ -171,7 +171,7 @@ def log_to_dict(unitlog_str, attributes_tpl = ATTRIBUTES, splitter_str = SPLITTE
     
     return ret_dic
 
-def logfile_converter(filepath)->list[dict]:
+def logfile_converter(filepath, attributes:tuple, splitter:str)->list[dict]:
     # log_to_dict()をループ
 
     with open(filepath,"r") as f:
@@ -181,33 +181,32 @@ def logfile_converter(filepath)->list[dict]:
     
     return log_ls
 
-
+##########
+# Public
+##########
 class LogToDf():
-    def __init__(self, logfilepath_ls):
-        """
-        Parameters
-        ----------
-        logfilepath_ls : list of path
-            logファイルのパスのリスト
-        """
+    # ユーザーが利用するのは基本的にこのクラスのみ
+    def __init__(self, attributes:tuple = None, splitter:str = None):
+        format = Logger.makeformat() # 使うかどうかわからないけれどとりあえず取得しておく
+        
+        if attributes is None:
+            self.attributes = format.attributes
+        else:
+            self.attributes = attributes
+            
+        if splitter is None:
+            self.splitter = format.splitter
+        else:
+            self.splitter = splitter
+        
+    def convert(self, logfilepath_ls):
         df_ls = []
         for path in logfilepath_ls:
             df_ls.append(pd.DataFrame(logfile_converter(path)))
-        self._log_df = pd.concat(df_ls, ignore_index=True)
-        
-    @property
-    def log_df(self):
-        return copy.deepcopy(self._log_df)
+        log_df = pd.concat(df_ls, ignore_index=True)
+        return log_df
         
     # [FutureWork]
     # def export_db(self):
     #     ...
     
-    
-if __name__ == "__main__":
-    renamefiles("temp", "templog")
-    
-    LogToDf = LogToDf(["temp/templog_1.log", "temp/templog_2.log"])
-    log_df = LogToDf.log_df
-    
-    print(log_df)
