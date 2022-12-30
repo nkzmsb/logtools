@@ -97,7 +97,11 @@ class TestLogger():
         caplog.set_level(logging.DEBUG)
         decorated()
         
-        assert caplog.records[0].function[-9:] == "decorated"
+        assert caplog.records[0].function == "TestLogger.test_trace_deco.<locals>.decorated"
+        assert caplog.records[0].message == "RUN:TestLogger.test_trace_deco.<locals>.decorated"
+        
+        assert caplog.records[1].function == "TestLogger.test_trace_deco.<locals>.decorated"
+        assert caplog.records[1].message == "FINISHED:TestLogger.test_trace_deco.<locals>.decorated"
 
     @pytest.mark.skip(reason="ログのテストの仕方を要確認")
     def test_logging(self, capture):

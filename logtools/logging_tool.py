@@ -171,13 +171,15 @@ class Logger():
         """
         
         def wrap(*args,**kwargs):
-            self._debug(action = "run"
+            self._debug(message = "RUN:" + func.__qualname__
+                        , action = "run"
                         , function = func.__qualname__
                         , tag = "trace")
                 
             ret = func(*args, **kwargs)
             
-            self._debug(action = "finished"
+            self._debug(message = "FINISHED:" + func.__qualname__
+                        , action = "finished"
                         , function = func.__qualname__
                         , tag = "trace")
             return ret
